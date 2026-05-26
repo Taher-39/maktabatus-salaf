@@ -1,0 +1,730 @@
+{
+  "info": {
+    "_postman_id": "maktabatus-salaf-collection",
+    "name": "Maktabatus Salaf - Complete API Testing",
+    "description": "সম্পূর্ণ API টেস্টিং কালেকশন - Admin ব্যবহারকারীর জন্য",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register Admin",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Admin User\",\n  \"email\": \"admin@maktabatus-salaf.com\",\n  \"password\": \"Admin@1234\",\n  \"phone\": \"01712345678\",\n  \"address\": \"Dhaka, Bangladesh\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/auth/register", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "auth", "register"]}
+          }
+        },
+        {
+          "name": "Login Admin",
+          "request": {
+            "method": "POST",
+            "header": [{"key": "Content-Type", "value": "application/json"}],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@maktabatus-salaf.com\",\n  \"password\": \"Admin@1234\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/auth/login", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "auth", "login"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "📚 Category Management",
+      "item": [
+        {
+          "name": "Create Category - Quran",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"কুরআন\",\n  \"description\": \"কুরআন মাজিদ এবং তাফসীর সংক্রান্ত বই\",\n  \"image\": \"https://via.placeholder.com/300?text=Quran\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/category", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "category"]}
+          }
+        },
+        {
+          "name": "Create Category - Hadith",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"হাদিস\",\n  \"description\": \"হাদিস শরিফ এবং হাদিস বিজ্ঞান বিষয়ক বই\",\n  \"image\": \"https://via.placeholder.com/300?text=Hadith\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/category", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "category"]}
+          }
+        },
+        {
+          "name": "Create Category - Aqidah",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"আকিদা\",\n  \"description\": \"ইসলামিক আকিদা এবং বিশ্বাস বিষয়ক বই\",\n  \"image\": \"https://via.placeholder.com/300?text=Aqidah\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/category", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "category"]}
+          }
+        },
+        {
+          "name": "Create Category - Islamic Law",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ফিকহ/আইন\",\n  \"description\": \"ইসলামিক আইন এবং শরিয়া সংক্রান্ত বই\",\n  \"image\": \"https://via.placeholder.com/300?text=Islamic_Law\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/category", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "category"]}
+          }
+        },
+        {
+          "name": "Get All Categories",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:5000/api/category", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "category"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "✍️ Author Management",
+      "item": [
+        {
+          "name": "Create Author - Dr. Abdullah Al-Mamun",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ডক্টর আব্দুল্লাহ আল-মামুন\",\n  \"bio\": \"প্রখ্যাত ইসলামিক স্কলার এবং লেখক\",\n  \"email\": \"author1@example.com\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/author", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "author"]}
+          }
+        },
+        {
+          "name": "Create Author - Maulana Abul Kalam",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"মাওলানা আবুল কালাম আজাদ\",\n  \"bio\": \"বিশিষ্ট হাদিস বিশারদ এবং শিক্ষাবিদ\",\n  \"email\": \"author2@example.com\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/author", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "author"]}
+          }
+        },
+        {
+          "name": "Create Author - Sheikh Albani",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"শেইখ আল-আলবানি\",\n  \"bio\": \"হাদিস গবেষণাবিদ এবং ইসলামিক পণ্ডিত\",\n  \"email\": \"author3@example.com\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/author", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "author"]}
+          }
+        },
+        {
+          "name": "Get All Authors",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:5000/api/author", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "author"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "🏢 Publisher Management",
+      "item": [
+        {
+          "name": "Create Publisher - Maktabatus Salaf",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Maktabatus Salaf\",\n  \"description\": \"ইসলামিক বইয়ের প্রধান প্রকাশনী\",\n  \"email\": \"info@maktabatus-salaf.com\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/publisher", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "publisher"]}
+          }
+        },
+        {
+          "name": "Create Publisher - Islamic Foundation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Islamic Foundation\",\n  \"description\": \"আন্তর্জাতিক ইসলামিক প্রকাশনী\",\n  \"email\": \"info@islamicfoundation.org\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/publisher", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "publisher"]}
+          }
+        },
+        {
+          "name": "Get All Publishers",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:5000/api/publisher", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "publisher"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "📖 Book Management",
+      "item": [
+        {
+          "name": "Create Book - Sahih Al-Bukhari (Hadith)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"সহিহ আল-বুখারি\",\n  \"description\": \"ইসলামের সবচেয়ে বিশ্বাসযোগ্য হাদিস সংগ্রহ। ইমাম মুহাম্মদ ইসমাইল আল-বুখারি রচিত এই সংগ্রহে রয়েছে ৭২৬৫টি হাদিস।\",\n  \"author\": \"{{author_id_1}}\",\n  \"category\": \"{{category_hadith}}\",\n  \"publisher\": \"{{publisher_id_1}}\",\n  \"price\": 850,\n  \"stock\": 50\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/book", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "book"]}
+          }
+        },
+        {
+          "name": "Create Book - Al-Quran Al-Karim (Quran)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"আল-কুরআন আল-করিম\",\n  \"description\": \"আল্লাহর চূড়ান্ত বার্তা যা মুহাম্মদ (সাঃ) এর মাধ্যমে আমাদের কাছে পৌঁছেছে। বাংলা অনুবাদ এবং তাফসীর সহ।\",\n  \"author\": \"{{author_id_2}}\",\n  \"category\": \"{{category_quran}}\",\n  \"publisher\": \"{{publisher_id_1}}\",\n  \"price\": 1500,\n  \"stock\": 100\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/book", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "book"]}
+          }
+        },
+        {
+          "name": "Create Book - At-Tawheed (Aqidah)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"আত-তাওহিদ\",\n  \"description\": \"ইসলামিক আকিদার মৌলিক ভিত্তি। এটি সর্বশক্তিমান আল্লাহর একত্ব এবং তার গুণাবলী নিয়ে আলোচনা করে।\",\n  \"author\": \"{{author_id_3}}\",\n  \"category\": \"{{category_aqidah}}\",\n  \"publisher\": \"{{publisher_id_2}}\",\n  \"price\": 650,\n  \"stock\": 75\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/book", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "book"]}
+          }
+        },
+        {
+          "name": "Create Book - Hidayah (Islamic Law)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"হিদায়াহ\",\n  \"description\": \"ইসলামিক আইন এবং ফিকহ শাস্ত্রের সবচেয়ে গুরুত্বপূর্ণ গ্রন্থ। আলুসি রচিত এই কাজ ইসলামি আইনশাস্ত্রের ভিত্তি।\",\n  \"author\": \"{{author_id_1}}\",\n  \"category\": \"{{category_law}}\",\n  \"publisher\": \"{{publisher_id_1}}\",\n  \"price\": 1200,\n  \"stock\": 40\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/book", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "book"]}
+          }
+        },
+        {
+          "name": "Get All Books",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:5000/api/book?page=1&limit=12", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "book"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "12"}]}
+          }
+        },
+        {
+          "name": "Get Popular Books",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:5000/api/book/popular", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "book", "popular"]}
+          }
+        },
+        {
+          "name": "Get Book by Slug",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:5000/api/book/sahih-al-bukhari", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "book", "sahih-al-bukhari"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "⭐ Review Management",
+      "item": [
+        {
+          "name": "Create Review for Book",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{user_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"book\": \"{{book_id}}\",\n  \"rating\": 5,\n  \"title\": \"অসাধারণ ইসলামিক জ্ঞান\",\n  \"comment\": \"এই বইটি আমার ইসলামিক জ্ঞান বৃদ্ধিতে অত্যন্ত সাহায্য করেছে। লেখক অত্যন্ত দক্ষ এবং জ্ঞানী ব্যক্তি। সবার জন্য অত্যন্ত সুপারিশকৃত।\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/review", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "review"]}
+          }
+        },
+        {
+          "name": "Create Another Review",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{user_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"book\": \"{{book_id_2}}\",\n  \"rating\": 4,\n  \"title\": \"অত্যন্ত গুরুত্বপূর্ণ বই\",\n  \"comment\": \"বইটি খুবই তথ্যবহুল এবং সহজবোধ্য। প্রতিটি মুসলিমের পড়া উচিত এই বই।\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/review", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "review"]}
+          }
+        },
+        {
+          "name": "Get All Reviews",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:5000/api/review?isApproved=true&page=1&limit=10", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "review"], "query": [{"key": "isApproved", "value": "true"}, {"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          }
+        },
+        {
+          "name": "Get Book Reviews",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:5000/api/review/book/{{book_id}}?page=1&limit=5", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "review", "book", "{{book_id}}"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "5"}]}
+          }
+        },
+        {
+          "name": "Mark Review as Helpful",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Authorization", "value": "Bearer {{user_token}}"}],
+            "url": {"raw": "http://localhost:5000/api/review/{{review_id}}/helpful", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "review", "{{review_id}}", "helpful"]}
+          }
+        },
+        {
+          "name": "Update Review",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{user_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"rating\": 5,\n  \"title\": \"চমৎকার বই - সবার জন্য অত্যাবশ্যক\",\n  \"comment\": \"আরও বেশি সময় পড়ার পর, আমি বলতে পারি এটি সত্যিই একটি চমৎকার বই। অত্যন্ত সুপারিশকৃত।\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/review/{{review_id}}", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "review", "{{review_id}}"]}
+          }
+        },
+        {
+          "name": "Delete Review",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{user_token}}"}],
+            "url": {"raw": "http://localhost:5000/api/review/{{review_id}}", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "review", "{{review_id}}"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "📝 Blog Management",
+      "item": [
+        {
+          "name": "Create Blog Post",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"ইসলামে শিক্ষার গুরুত্ব\",\n  \"excerpt\": \"ইসলামে শিক্ষা অর্জন একটি ধর্মীয় দায়িত্ব এবং প্রতিটি মুসলিমের জন্য অপরিহার্য। এই ব্লগে আমরা এই বিষয়ে বিস্তারিত আলোচনা করব।\",\n  \"content\": \"# ইসলামে শিক্ষার গুরুত্ব\\n\\nইসলাম শিক্ষাকে অত্যন্ত গুরুত্ব দেয়। কুরআনে বলা হয়েছে আল্লাহ তাঁর বান্দাদের মধ্যে যারা জ্ঞান অর্জন করে তাদের নিয়ে গর্বিত হন।\\n\\n## শিক্ষার ফলাফল\\n\\n১. মানসিক উন্নয়ন\\n২. সামাজিক উন্নতি\\n৩. নৈতিক উন্নয়ন\",\n  \"category\": \"শিক্ষা\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/blog", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "blog"]}
+          }
+        },
+        {
+          "name": "Create Another Blog Post",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"হজ্জের আধ্যাত্মিক তাৎপর্য\",\n  \"excerpt\": \"হজ্জ ইসলামের পাঁচটি স্তম্ভের একটি। এটি শুধুমাত্র একটি আচার নয়, বরং গভীর আধ্যাত্মিক অর্থ বহন করে।\",\n  \"content\": \"# হজ্জের আধ্যাত্মিক তাৎপর্য\\n\\nহজ্জ হল ইসলামের পাঁচটি স্তম্ভের একটি। প্রতি বছর বিশ্বের বিভিন্ন প্রান্ত থেকে লাখ লাখ মুসলিম এই পবিত্র স্থানে সমবেত হন।\\n\\n## হজ্জের উদ্দেশ্য\\n\\n- আল্লাহর প্রতি সম্পূর্ণ আনুগত্য প্রকাশ\\n- মুসলিম জাতির সংহতি প্রদর্শন\\n- নৈতিক পরিশোধন এবং আধ্যাত্মিক উন্নয়ন\",\n  \"category\": \"ইবাদত\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/blog", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "blog"]}
+          }
+        },
+        {
+          "name": "Get All Blogs",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:5000/api/blog?status=published&page=1&limit=10", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "blog"], "query": [{"key": "status", "value": "published"}, {"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          }
+        },
+        {
+          "name": "Get Blog by Slug",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:5000/api/blog/islamic-education-importance", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "blog", "islamic-education-importance"]}
+          }
+        },
+        {
+          "name": "Like Blog",
+          "request": {
+            "method": "PATCH",
+            "url": {"raw": "http://localhost:5000/api/blog/{{blog_id}}/like", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "blog", "{{blog_id}}", "like"]}
+          }
+        },
+        {
+          "name": "Increment Blog Views",
+          "request": {
+            "method": "PATCH",
+            "url": {"raw": "http://localhost:5000/api/blog/{{blog_id}}/views", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "blog", "{{blog_id}}", "views"]}
+          }
+        },
+        {
+          "name": "Update Blog",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"ইসলামে শিক্ষা - সংশোধিত\",\n  \"excerpt\": \"ইসলামে শিক্ষা অর্জন প্রতিটি মুসলিমের জন্য ফরজ। এটি শুধু দ্বিনি শিক্ষা নয়, দুনিয়াবি শিক্ষাও অন্তর্ভুক্ত।\",\n  \"category\": \"শিক্ষা ও জ্ঞান\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/blog/{{blog_id}}", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "blog", "{{blog_id}}"]}
+          }
+        },
+        {
+          "name": "Delete Blog",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": {"raw": "http://localhost:5000/api/blog/{{blog_id}}", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "blog", "{{blog_id}}"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "🎨 Banner Management",
+      "item": [
+        {
+          "name": "Create Hero Banner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"ঈদ মেগা অফার\",\n  \"description\": \"সকল বইয়ে পর্যন্ত ৫০% ছাড়\",\n  \"link\": \"/books?category=all\",\n  \"position\": \"hero\",\n  \"startDate\": \"2026-05-26T00:00:00Z\",\n  \"endDate\": \"2026-06-30T23:59:59Z\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/banner", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "banner"]}
+          }
+        },
+        {
+          "name": "Create Featured Banner",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"নতুন সংযোজন - কুরআন শরিফ\",\n  \"description\": \"প্রিমিয়াম সংস্করণ এখন উপলব্ধ\",\n  \"link\": \"/books/al-quran-al-karim\",\n  \"position\": \"featured\",\n  \"startDate\": \"2026-05-26T00:00:00Z\",\n  \"endDate\": \"2026-06-15T23:59:59Z\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/banner", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "banner"]}
+          }
+        },
+        {
+          "name": "Get Active Banners",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:5000/api/banner/active?position=hero", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "banner", "active"], "query": [{"key": "position", "value": "hero"}]}
+          }
+        },
+        {
+          "name": "Get All Banners",
+          "request": {
+            "method": "GET",
+            "url": {"raw": "http://localhost:5000/api/banner?status=active&page=1&limit=10", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "banner"], "query": [{"key": "status", "value": "active"}, {"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          }
+        },
+        {
+          "name": "Update Banner",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"ঈদ মেগা অফার - চূড়ান্ত\",\n  \"description\": \"সকল বইয়ে পর্যন্ত ৭০% ছাড়\",\n  \"endDate\": \"2026-06-20T23:59:59Z\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/banner/{{banner_id}}", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "banner", "{{banner_id}}"]}
+          }
+        },
+        {
+          "name": "Delete Banner",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": {"raw": "http://localhost:5000/api/banner/{{banner_id}}", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "banner", "{{banner_id}}"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "💝 Wishlist Management",
+      "item": [
+        {
+          "name": "Get My Wishlist",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{user_token}}"}],
+            "url": {"raw": "http://localhost:5000/api/wishlist?page=1&limit=20", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "wishlist"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "20"}]}
+          }
+        },
+        {
+          "name": "Add Book to Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{user_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": \"{{book_id}}\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/wishlist/add", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "wishlist", "add"]}
+          }
+        },
+        {
+          "name": "Remove Book from Wishlist",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{user_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"bookId\": \"{{book_id}}\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/wishlist/remove", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "wishlist", "remove"]}
+          }
+        },
+        {
+          "name": "Check if Book in Wishlist",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{user_token}}"}],
+            "url": {"raw": "http://localhost:5000/api/wishlist/check/{{book_id}}", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "wishlist", "check", "{{book_id}}"]}
+          }
+        },
+        {
+          "name": "Clear Wishlist",
+          "request": {
+            "method": "DELETE",
+            "header": [{"key": "Authorization", "value": "Bearer {{user_token}}"}],
+            "url": {"raw": "http://localhost:5000/api/wishlist/clear", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "wishlist", "clear"]}
+          }
+        },
+        {
+          "name": "Update Wishlist",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{user_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"isPublic\": true\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/wishlist/update", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "wishlist", "update"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛒 Order Management",
+      "item": [
+        {
+          "name": "Create Order",
+          "request": {
+            "method": "POST",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{user_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    {\n      \"book\": \"{{book_id}}\",\n      \"quantity\": 2,\n      \"price\": 850\n    },\n    {\n      \"book\": \"{{book_id_2}}\",\n      \"quantity\": 1,\n      \"price\": 1500\n    }\n  ],\n  \"shippingAddress\": \"ঢাকা, বাংলাদেশ\",\n  \"phone\": \"01712345678\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/order", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "order"]}
+          }
+        },
+        {
+          "name": "Get My Orders",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{user_token}}"}],
+            "url": {"raw": "http://localhost:5000/api/order?page=1&limit=10", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "order"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "10"}]}
+          }
+        },
+        {
+          "name": "Get Order Details",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{user_token}}"}],
+            "url": {"raw": "http://localhost:5000/api/order/{{order_id}}", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "order", "{{order_id}}"]}
+          }
+        },
+        {
+          "name": "Cancel Order",
+          "request": {
+            "method": "PATCH",
+            "header": [{"key": "Authorization", "value": "Bearer {{user_token}}"}],
+            "url": {"raw": "http://localhost:5000/api/order/{{order_id}}/cancel", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "order", "{{order_id}}", "cancel"]}
+          }
+        },
+        {
+          "name": "Get All Orders (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": {"raw": "http://localhost:5000/api/order/admin?status=pending&page=1&limit=20", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "order", "admin"], "query": [{"key": "status", "value": "pending"}, {"key": "page", "value": "1"}, {"key": "limit", "value": "20"}]}
+          }
+        },
+        {
+          "name": "Update Order Status (Admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{admin_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"shipped\",\n  \"trackingNumber\": \"TRACK123456\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/order/{{order_id}}/status", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "order", "{{order_id}}", "status"]}
+          }
+        }
+      ]
+    },
+    {
+      "name": "👤 User Management",
+      "item": [
+        {
+          "name": "Get My Profile",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{user_token}}"}],
+            "url": {"raw": "http://localhost:5000/api/user/profile", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "user", "profile"]}
+          }
+        },
+        {
+          "name": "Update My Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {"key": "Content-Type", "value": "application/json"},
+              {"key": "Authorization", "value": "Bearer {{user_token}}"}
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"আহমেদ আলী\",\n  \"phone\": \"01712345678\",\n  \"address\": \"ঢাকা, বাংলাদেশ\"\n}"
+            },
+            "url": {"raw": "http://localhost:5000/api/user/profile", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "user", "profile"]}
+          }
+        },
+        {
+          "name": "Get All Users (Admin)",
+          "request": {
+            "method": "GET",
+            "header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+            "url": {"raw": "http://localhost:5000/api/user?page=1&limit=20", "protocol": "http", "host": ["localhost"], "port": ["5000"], "path": ["api", "user"], "query": [{"key": "page", "value": "1"}, {"key": "limit", "value": "20"}]}
+          }
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {"key": "admin_token", "value": "your_admin_jwt_token_here", "type": "string"},
+    {"key": "user_token", "value": "your_user_jwt_token_here", "type": "string"},
+    {"key": "author_id_1", "value": "replace_with_author_id", "type": "string"},
+    {"key": "author_id_2", "value": "replace_with_author_id", "type": "string"},
+    {"key": "author_id_3", "value": "replace_with_author_id", "type": "string"},
+    {"key": "category_quran", "value": "replace_with_category_id", "type": "string"},
+    {"key": "category_hadith", "value": "replace_with_category_id", "type": "string"},
+    {"key": "category_aqidah", "value": "replace_with_category_id", "type": "string"},
+    {"key": "category_law", "value": "replace_with_category_id", "type": "string"},
+    {"key": "publisher_id_1", "value": "replace_with_publisher_id", "type": "string"},
+    {"key": "publisher_id_2", "value": "replace_with_publisher_id", "type": "string"},
+    {"key": "book_id", "value": "replace_with_book_id", "type": "string"},
+    {"key": "book_id_2", "value": "replace_with_book_id", "type": "string"},
+    {"key": "review_id", "value": "replace_with_review_id", "type": "string"},
+    {"key": "blog_id", "value": "replace_with_blog_id", "type": "string"},
+    {"key": "banner_id", "value": "replace_with_banner_id", "type": "string"},
+    {"key": "order_id", "value": "replace_with_order_id", "type": "string"}
+  ]
+}

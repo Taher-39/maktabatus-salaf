@@ -1,0 +1,568 @@
+{
+  "projectName": "Maktabatus Salaf - MERN Stack Book Store",
+  "version": "1.0",
+  "lastUpdated": "May 2026",
+  
+  "features": {
+    "backend": {
+      "modules": {
+        "auth": {
+          "status": "✅ COMPLETED",
+          "features": [
+            "✅ Phone + Password Login",
+            "✅ Register with OTP verification",
+            "✅ Password reset/recovery",
+            "✅ JWT token management",
+            "⚠️ Token refresh endpoint (needed)",
+            "⚠️ Social login (optional - later)"
+          ],
+          "notes": "OTP service needs Firebase setup"
+        },
+        "user": {
+          "status": "✅ COMPLETED",
+          "features": [
+            "✅ Profile management",
+            "✅ Address management",
+            "✅ Password change",
+            "⚠️ User ban/unban system (needed for admin)",
+            "⚠️ Two-factor authentication (optional)"
+          ]
+        },
+        "book": {
+          "status": "✅ COMPLETED",
+          "features": [
+            "✅ CRUD operations",
+            "✅ Search & filter",
+            "✅ Sort options",
+            "✅ Popular books",
+            "✅ New books",
+            "✅ Category-wise filtering",
+            "⚠️ Stock management alerts (needed)",
+            "⚠️ PDF preview upload (needed)",
+            "⚠️ View count tracking (needed)",
+            "⚠️ Sold count tracking (needed)"
+          ]
+        },
+        "review": {
+          "status": "✅ COMPLETED",
+          "features": [
+            "✅ Create review",
+            "✅ Rating system",
+            "✅ Admin delete reviews",
+            "✅ Get reviews by book",
+            "⚠️ Auto-approval status (verify implementation)",
+            "⚠️ Review helpful count"
+          ]
+        },
+        "order": {
+          "status": "⚠️ PARTIAL",
+          "features": [
+            "✅ Create order",
+            "✅ Order status tracking",
+            "✅ User orders history",
+            "⚠️ 🔴 Payment proof upload (MISSING)",
+            "⚠️ 🔴 Invoice generation (MISSING)",
+            "⚠️ Order cancellation",
+            "⚠️ Refund management (MISSING)",
+            "⚠️ Shipping charge calculation"
+          ]
+        },
+        "cart": {
+          "status": "❌ NOT CREATED",
+          "features": [
+            "🔴 Add to cart",
+            "🔴 Remove from cart",
+            "🔴 Update quantity",
+            "🔴 Cart validation",
+            "🔴 Cart persistence"
+          ],
+          "priority": "HIGH"
+        },
+        "wishlist": {
+          "status": "✅ COMPLETED",
+          "features": [
+            "✅ Add to wishlist",
+            "✅ Remove from wishlist",
+            "✅ Get wishlist",
+            "✅ Check if in wishlist"
+          ]
+        },
+        "blog": {
+          "status": "✅ COMPLETED",
+          "features": [
+            "✅ Create blog post",
+            "✅ Edit/delete post",
+            "✅ Get all blogs",
+            "✅ Likes and views tracking",
+            "⚠️ Comments system (optional)"
+          ]
+        },
+        "banner": {
+          "status": "✅ COMPLETED",
+          "features": [
+            "✅ Create/edit banner",
+            "✅ Position management (hero, featured, promotion)",
+            "✅ Active banners filtering",
+            "✅ Date-based expiry"
+          ]
+        },
+        "category": {
+          "status": "✅ COMPLETED",
+          "features": [
+            "✅ CRUD operations",
+            "✅ Get all categories"
+          ]
+        },
+        "author": {
+          "status": "✅ COMPLETED",
+          "features": [
+            "✅ CRUD operations",
+            "✅ Get all authors"
+          ]
+        },
+        "publisher": {
+          "status": "✅ COMPLETED",
+          "features": [
+            "✅ CRUD operations",
+            "✅ Get all publishers"
+          ]
+        }
+      },
+
+      "criticalMissing": [
+        {
+          "name": "Cart Management API",
+          "priority": "🔴 CRITICAL",
+          "description": "Need complete cart management system",
+          "endpoints": [
+            "POST /api/cart - add to cart",
+            "GET /api/cart - get cart items",
+            "PUT /api/cart/:id - update quantity",
+            "DELETE /api/cart/:id - remove item",
+            "DELETE /api/cart - clear cart"
+          ],
+          "model": "Need Cart schema with userId, books[], quantities"
+        },
+        {
+          "name": "Payment Management",
+          "priority": "🔴 CRITICAL",
+          "description": "Payment proof upload and verification system",
+          "features": [
+            "Payment model with proof image upload",
+            "Admin payment verification endpoint",
+            "Payment status tracking",
+            "Webhook for payment gateway integration"
+          ]
+        },
+        {
+          "name": "Invoice Generation",
+          "priority": "🔴 CRITICAL",
+          "description": "PDF invoice generation and download",
+          "features": [
+            "Generate PDF invoice on order",
+            "Download invoice endpoint",
+            "Email invoice to customer"
+          ]
+        },
+        {
+          "name": "Refund Management",
+          "priority": "⚠️ IMPORTANT",
+          "description": "Handle order returns and refunds",
+          "features": [
+            "Initiate refund",
+            "Refund status tracking",
+            "Bank details management"
+          ]
+        }
+      ],
+
+      "recommendedAdditions": [
+        {
+          "name": "Email Notifications Service",
+          "priority": "⚠️ IMPORTANT",
+          "description": "NodeMailer or SendGrid integration",
+          "requirements": [
+            "Order confirmation email",
+            "Order status update emails",
+            "Password reset email",
+            "Review notification email",
+            "Registration confirmation email"
+          ]
+        },
+        {
+          "name": "Admin Audit Logs",
+          "priority": "⚠️ IMPORTANT",
+          "description": "Track admin actions for security",
+          "features": [
+            "Log all admin operations",
+            "Track changes history",
+            "User action tracking"
+          ]
+        },
+        {
+          "name": "Analytics Events",
+          "priority": "⚠️ MODERATE",
+          "description": "Track user behavior",
+          "events": [
+            "Book view",
+            "Add to cart",
+            "Wishlist add",
+            "Search queries",
+            "Review submission",
+            "Purchase"
+          ]
+        },
+        {
+          "name": "Coupon/Discount System",
+          "priority": "⚠️ MODERATE",
+          "description": "For future promotional campaigns",
+          "features": [
+            "Create coupon codes",
+            "Discount types (percentage/fixed)",
+            "Usage limits",
+            "Expiry dates"
+          ]
+        },
+        {
+          "name": "Rating Aggregation",
+          "priority": "⚠️ MODERATE",
+          "description": "Show average rating per book",
+          "features": [
+            "Aggregate ratings",
+            "Count total reviews per book",
+            "Rating distribution chart"
+          ]
+        },
+        {
+          "name": "Search History",
+          "priority": "⚠️ MODERATE",
+          "description": "Track user search queries",
+          "features": [
+            "Save search queries",
+            "Popular searches",
+            "Search suggestions"
+          ]
+        }
+      ]
+    },
+
+    "frontend": {
+      "pages": {
+        "homePage": {
+          "status": "❌ NOT STARTED",
+          "components": [
+            "🔴 Three.js animated banner (Islamic geometric patterns)",
+            "🔴 Navbar with Framer Motion animation",
+            "🔴 Hero section",
+            "🔴 Carousel (Framer Motion)",
+            "🔴 Sidebar filter (author, price, category)",
+            "🔴 Sort options dropdown",
+            "🔴 Search bar (debounced)",
+            "🔴 Popular books section",
+            "🔴 New books section",
+            "🔴 Tuba Publications section",
+            "🔴 Blog section",
+            "🔴 YouTube reviews embed",
+            "🔴 WhatsApp floating button",
+            "🔴 Recently viewed section",
+            "🔴 Footer with links"
+          ]
+        },
+        "bookDetailsPage": {
+          "status": "❌ NOT STARTED",
+          "components": [
+            "🔴 Book image with magnify",
+            "🔴 Book info (name, author, category)",
+            "🔴 Buy Now + Add to Cart",
+            "🔴 Read Preview (max 7 pages)",
+            "🔴 Share buttons (WhatsApp, Facebook, Copy Link)",
+            "🔴 Description section",
+            "🔴 Reviews & ratings section",
+            "🔴 Related books section"
+          ]
+        },
+        "loginPage": {
+          "status": "❌ NOT STARTED",
+          "components": [
+            "🔴 Phone number input",
+            "🔴 Password input",
+            "🔴 Forgot password link",
+            "🔴 Sign up link",
+            "🔴 Form validation"
+          ]
+        },
+        "registerPage": {
+          "status": "❌ NOT STARTED",
+          "components": [
+            "🔴 Phone number + OTP verification",
+            "🔴 Name input",
+            "🔴 Address (single field - গ্রাম, থানা, জেলা)",
+            "🔴 Password + confirm",
+            "🔴 Login link"
+          ]
+        },
+        "cartPage": {
+          "status": "❌ NOT STARTED",
+          "components": [
+            "🔴 Book list with images",
+            "🔴 Quantity controls",
+            "🔴 Remove option",
+            "🔴 Price summary",
+            "🔴 Proceed to checkout button"
+          ]
+        },
+        "checkoutPage": {
+          "status": "❌ NOT STARTED",
+          "components": [
+            "🔴 Guest checkout option",
+            "🔴 Auto-fill for logged-in users",
+            "🔴 Name, phone, email (optional)",
+            "🔴 Address, thana, district",
+            "🔴 Shipping charge display (40 TK fixed)",
+            "🔴 Grand total calculation",
+            "🔴 Payment proof upload",
+            "🔴 Order confirmation"
+          ]
+        },
+        "customerProfile": {
+          "status": "❌ NOT STARTED",
+          "components": [
+            "🔴 Profile edit (name, phone, address)",
+            "🔴 Order history with status",
+            "🔴 Order details page",
+            "🔴 Invoice download",
+            "🔴 My reviews section",
+            "🔴 Wishlist page",
+            "🔴 Change password",
+            "🔴 Logout"
+          ]
+        },
+        "adminPanel": {
+          "status": "❌ NOT STARTED",
+          "components": [
+            "🔴 Dashboard (sales, orders, books, users summary)",
+            "🔴 Book management (add/edit/delete)",
+            "🔴 Author management",
+            "🔴 Category management",
+            "🔴 Publisher management",
+            "🔴 Order management (status update)",
+            "🔴 User management (ban/unban)",
+            "🔴 Blog management",
+            "🔴 Review moderation",
+            "🔴 Banner/Carousel management",
+            "🔴 WhatsApp FAQ setup",
+            "🔴 Payment proof verification"
+          ],
+          "notes": "Different styling from main site"
+        }
+      },
+
+      "globalFeatures": {
+        "animations": {
+          "status": "❌ NOT STARTED",
+          "features": [
+            "🔴 Framer Motion page transitions",
+            "🔴 Three.js background effects",
+            "🔴 Component entrance animations"
+          ]
+        },
+        "responsive": {
+          "status": "❌ NOT STARTED",
+          "features": [
+            "🔴 Mobile-first design",
+            "🔴 Tablet optimization",
+            "🔴 Desktop optimization"
+          ]
+        },
+        "localization": {
+          "status": "❌ NOT STARTED",
+          "features": [
+            "🔴 Bengali language throughout",
+            "🔴 Hind Siliguri / Noto Sans Bengali font",
+            "🔴 RTL support (if needed)",
+            "🔴 Date/time localization"
+          ]
+        },
+        "theme": {
+          "status": "❌ NOT STARTED",
+          "colors": {
+            "primary": "Deep Midnight Green",
+            "accent": "Warm Gold",
+            "background": "Off-white"
+          },
+          "features": [
+            "🔴 Consistent theme setup",
+            "🔴 Dark mode (optional)"
+          ]
+        },
+        "sharedComponents": {
+          "status": "❌ NOT STARTED",
+          "components": [
+            "🔴 Navbar",
+            "🔴 Footer",
+            "🔴 WhatsApp floating button",
+            "🔴 Recently viewed books section",
+            "🔴 Loading skeleton",
+            "🔴 Toast notifications",
+            "🔴 Modal dialogs",
+            "🔴 Error boundaries"
+          ]
+        }
+      }
+    },
+
+    "infrastructure": {
+      "payment": {
+        "status": "❌ NOT CONFIGURED",
+        "tasks": [
+          "🔴 Choose payment gateway (SSLCommerz/Amarpay/Stripe)",
+          "🔴 API key setup",
+          "🔴 Webhook configuration",
+          "🔴 Payment verification logic",
+          "🔴 Failure handling",
+          "🔴 Refund logic",
+          "🔴 Payment history tracking"
+        ],
+        "notes": "Currently manual proof-based system. Need to upgrade for production"
+      },
+      "storage": {
+        "status": "⚠️ PARTIAL",
+        "tasks": [
+          "✅ MongoDB setup (assumed)",
+          "⚠️ PDF file storage (Cloudinary/S3)",
+          "⚠️ Image optimization",
+          "⚠️ CDN setup (optional)"
+        ]
+      },
+      "authentication": {
+        "status": "⚠️ PARTIAL",
+        "tasks": [
+          "✅ JWT tokens",
+          "⚠️ Firebase OTP setup (needs configuration)",
+          "⚠️ Token refresh mechanism",
+          "⚠️ Session management",
+          "⚠️ CORS configuration"
+        ]
+      },
+      "deployment": {
+        "status": "❌ NOT STARTED",
+        "tasks": [
+          "🔴 Frontend hosting (Vercel/Netlify)",
+          "🔴 Backend hosting (Heroku/Railway/Render)",
+          "🔴 Database hosting (MongoDB Atlas)",
+          "🔴 Environment variables setup",
+          "🔴 CI/CD pipeline",
+          "🔴 Monitoring & logging"
+        ]
+      }
+    },
+
+    "quality": {
+      "testing": {
+        "status": "❌ NOT STARTED",
+        "tasks": [
+          "🔴 Unit tests",
+          "🔴 Integration tests",
+          "🔴 E2E tests (Cypress/Playwright)",
+          "🔴 Payment flow testing",
+          "🔴 Admin functionality testing"
+        ]
+      },
+      "security": {
+        "status": "⚠️ PARTIAL",
+        "tasks": [
+          "⚠️ Input validation (Zod - in progress)",
+          "⚠️ SQL injection prevention",
+          "⚠️ XSS prevention",
+          "⚠️ CSRF protection",
+          "⚠️ Rate limiting",
+          "⚠️ HTTPS enforcement",
+          "⚠️ Password hashing verification"
+        ]
+      },
+      "seo": {
+        "status": "❌ NOT STARTED",
+        "tasks": [
+          "🔴 Meta tags setup",
+          "🔴 Open Graph tags",
+          "🔴 Sitemap generation",
+          "🔴 robots.txt",
+          "🔴 Structured data (JSON-LD)",
+          "🔴 Google Analytics",
+          "🔴 Search console setup"
+        ]
+      },
+      "performance": {
+        "status": "❌ NOT STARTED",
+        "tasks": [
+          "🔴 Image optimization",
+          "🔴 Code splitting",
+          "🔴 Lazy loading",
+          "🔴 Caching strategies",
+          "🔴 Bundle size optimization",
+          "🔴 Lighthouse score optimization"
+        ]
+      }
+    },
+
+    "documentation": {
+      "status": "⚠️ PARTIAL",
+      "tasks": [
+        "✅ TESTING_GUIDE.md created",
+        "⚠️ API documentation (Swagger/Postman)",
+        "🔴 Frontend component documentation",
+        "🔴 Setup guide for developers",
+        "🔴 Deployment guide",
+        "🔴 Database schema documentation",
+        "🔴 Environment variables guide"
+      ]
+    }
+  },
+
+  "summary": {
+    "totalModules": 12,
+    "completedBackend": 10,
+    "missingBackend": 2,
+    "totalFrontendPages": 7,
+    "completedFrontendPages": 0,
+    "criticalTasks": [
+      "🔴 Create Cart API",
+      "🔴 Payment system implementation",
+      "🔴 Invoice generation",
+      "🔴 Build all frontend pages",
+      "🔴 Integrate Framer Motion & Three.js",
+      "🔴 Admin panel"
+    ]
+  },
+
+  "recommendedNextSteps": {
+    "immediate": [
+      "1. Create Cart API (backend) - 2-3 hours",
+      "2. Create Payment Management API (backend) - 4-5 hours",
+      "3. Invoice generation API - 2-3 hours",
+      "4. Setup Next.js project structure (frontend) - 1-2 hours",
+      "5. Create base layout components (Navbar, Footer, etc) - 3-4 hours"
+    ],
+    "shortTerm": [
+      "Build Home page with filters & search",
+      "Build Book details page",
+      "Build Cart page",
+      "Build Checkout page",
+      "Integrate payment gateway"
+    ],
+    "midTerm": [
+      "Build customer profile pages",
+      "Build Admin panel",
+      "Implement animations (Framer Motion, Three.js)",
+      "Setup email notifications",
+      "Add analytics"
+    ],
+    "longTerm": [
+      "SEO optimization",
+      "Performance optimization",
+      "Testing suite",
+      "Deployment pipeline",
+      "Monitoring & logging"
+    ]
+  }
+}
