@@ -32,6 +32,7 @@ export const registerUser = async (
 };
 
 export const loginUser = async (phone: string, password: string) => {
+  console.log("Login attempt for phone from service:", phone);
   const user = await User.findOne({ phone });
   if (!user) throw new AppError("ফোন নম্বর বা পাসওয়ার্ড ভুল", 401);
   if (user.isBanned) throw new AppError("আপনার অ্যাকাউন্ট বাতিল করা হয়েছে", 403);

@@ -44,6 +44,7 @@ export const login = async (
   req: Request, res: Response, next: NextFunction
 ): Promise<void> => {
   try {
+    console.log("Body from controller:", req.body);
     const parsed = loginSchema.safeParse(req.body);
     if (!parsed.success) throw new AppError(parsed.error.message, 400);
 
