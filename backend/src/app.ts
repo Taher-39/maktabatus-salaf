@@ -13,6 +13,7 @@ import authorRoutes    from "./modules/author/author.routes";
 import categoryRoutes  from "./modules/category/category.routes";
 import publisherRoutes from "./modules/publisher/publisher.routes";
 import OrderRoutes  from "./modules/order/order.routes";
+import userRoutes from './modules/user/user.routes';
 
 const app = express();
 app.use(helmet());
@@ -40,7 +41,7 @@ app.use("/api/v1/authors",    authorRoutes);
 app.use("/api/v1/categories", categoryRoutes);
 app.use("/api/v1/publishers", publisherRoutes);
 app.use("/api/v1/orders", OrderRoutes);
-
+app.use('/api/v1/users', userRoutes);
 
 app.use(errorHandler);
 export default app;
