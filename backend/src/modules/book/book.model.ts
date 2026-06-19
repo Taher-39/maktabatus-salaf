@@ -35,16 +35,4 @@ const bookSchema = new Schema<IBook>(
   { timestamps: true }
 );
 
-// Auto-generate slug from title
-bookSchema.pre("validate", function (next: any) {
-  if (this.isModified("title") && !this.slug) {
-    this.slug = this.title
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .trim();
-  }
-  next();
-});
-
 export const Book = mongoose.model<IBook>("Book", bookSchema);

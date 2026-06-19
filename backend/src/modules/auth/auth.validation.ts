@@ -10,11 +10,14 @@ export const registerSchema = z.object({
       thana: z.string().optional().default(""),
       district: z.string().optional().default(""),
     })
-    .optional(),
+    .optional()
 });
 
 export const loginSchema = z.object({
-  phone: z.string().min(11, "সঠিক ফোন নম্বর দিন"),
+  phone: z
+    .string()
+    .min(10, "সঠিক ফোন নম্বর দিন")
+    .regex(/^\d{10,15}$/, "শুধুমাত্র সংখ্যা এবং ১০-১৫ ডিজিট দিন"),
   password: z.string().min(1, "পাসওয়ার্ড দিন"),
 });
 

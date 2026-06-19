@@ -91,16 +91,11 @@ export const getBooksByPublisher = async (publisherId: string, limit = 8) => {
 };
 
 export const createBook = async (data: z.infer<typeof createBookSchema>, coverImage?: string, previewPages?: string[]) => {
-  const slug = data.title
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .trim();
 
-  const existing = await Book.findOne({ slug });
+  const existing = await Book.findOne({ slug: data.slug });
   if (existing) throw new AppError("এই নামে বই আগেই আছে", 409);
 
-  return Book.create({ ...data, slug, coverImage: coverImage || "", previewPages: previewPages || [] });
+  return Book.create({ ...data, coverImage: coverImage || "", previewPages: previewPages || [] });
 };
 
 export const updateBook = async (id: string, data: z.infer<typeof updateBookSchema>, coverImage?: string) => {

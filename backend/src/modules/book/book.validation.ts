@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const createBookSchema = z.object({
   title:       z.string().min(2, "বইয়ের নাম দিন"),
+  slug:        z.string().min(2, "স্লাগ দিন").regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "স্লাগ শুধুমাত্র ছোট হাতের অক্ষর, সংখ্যা এবং হাইফেন থাকতে পারে"),
   description: z.string().optional().default(""),
   author:      z.string().min(1, "লেখক নির্বাচন করুন"),
   category:    z.string().min(1, "ক্যাটাগরি নির্বাচন করুন"),

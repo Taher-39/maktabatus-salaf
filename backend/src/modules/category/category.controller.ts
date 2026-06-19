@@ -1,12 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { sendResponse } from "../../utils/sendResponse";
 import { AppError } from "../../middlewares/errorHandler";
-import { categorySchema, updateCategorySchema } from "./category.validation";
+import { categorySchema, categoryQuerySchema, updateCategorySchema } from "./category.validation";
 import { getAllCategories, createCategory, updateCategory, deleteCategory } from "./category.service";
 
 export const getAllCategoriesHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try { sendResponse(res, 200, "সফল", await getAllCategories()); }
-  catch (err) { next(err); }
+  try {
+    const query = categoryQuerySchema.parse(req.query);
+    const { categories, page, limit, total, totalPages } = await getAllCategories(query);
+    sendResponse(res, 200, "সফল", categories, { page, limit, total, totalPages });
+  } catch (err) { next(err); }
 };
 
 export const createCategoryHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

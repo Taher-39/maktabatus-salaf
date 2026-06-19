@@ -35,5 +35,5 @@ export const updateOrderStatusSchema = z.object({
 });
 
 export const uploadPaymentProofSchema = z.object({
-  proofUrl: z.string().url('সঠিক URL দিন'),
+  proofUrl: z.string().optional(), // For backward compatibility
 });

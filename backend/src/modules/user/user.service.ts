@@ -55,8 +55,8 @@ const changePassword = async (
 const getAllUsers = async (query: Record<string, unknown>) => {
   const { page = 1, limit = 10, search, isBanned } = query;
 
-  // ✅ role: 'user' — auth model-এ 'user' আছে, 'customer' নয়
-  const filter: Record<string, unknown> = { role: 'user' };
+  // Filter for customer role (not admin)
+  const filter: Record<string, unknown> = { role: 'customer' };
 
   if (isBanned !== undefined) filter.isBanned = isBanned === 'true';
 

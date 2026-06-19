@@ -1,0 +1,13 @@
+{
+  "name": "salaf-ecom",
+  "private": true,
+  "scripts": {
+    "dev:backend": "npm run dev --prefix backend",
+    "dev:frontend": "npm run dev --prefix frontend",
+    "build:frontend": "npm run build --prefix frontend"
+  },
+  "dependencies": {
+    "@types/pdfkit": "^0.17.6",
+    "pdfkit": "^0.18.0"
+  }
+}

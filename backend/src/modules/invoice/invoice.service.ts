@@ -1,7 +1,7 @@
-import PDFDocument from 'pdfkit';
+import PDFDocument from 'pdfkit-table';
 import { Readable } from 'stream';
 import { Order } from '../order/order.model';
-import { AppError } from '../../utils/sendResponse';
+import { AppError } from '../../middlewares/errorHandler';
 
 interface InvoiceData {
   invoiceId: string;
@@ -22,33 +22,33 @@ interface InvoiceData {
   total: number;
 }
 
-export const generateInvoiceService = async (orderId: string): Promise<PDFDocument> => {
+export const generateInvoiceService = async (orderId: string): Promise<InstanceType<typeof PDFDocument>> => {
   try {
     // Get order details
-    const order = await Order.findById(orderId).populate('items.book').populate('user');
+    const order = await Order.findById(orderId).populate('items.book');
 
     if (!order) {
-      throw new AppError('Order not found', 404);
+      throw new AppError('অর্ডার পাওয়া যায়নি', 404);
     }
 
     // Prepare invoice data
     const invoiceData: InvoiceData = {
-      invoiceId: order._id.toString(),
-      date: order.createdAt,
+      invoiceId: order.orderId || order._id.toString(),
+      date: order.createdAt || new Date(),
       customer: {
-        name: order.user.name,
-        email: order.user.email,
-        phone: order.user.phone,
-        address: order.shippingAddress?.address || 'N/A'
+        name: order.name,
+        email: order.email || 'N/A',
+        phone: order.phone,
+        address: order.address
       },
       items: order.items.map((item: any) => ({
-        title: item.book.title,
+        title: item.book?.title || 'Unknown',
         quantity: item.quantity,
         price: item.price
       })),
-      subtotal: order.totalPrice,
-      shippingCharge: 40,
-      total: order.totalPrice + 40
+      subtotal: order.subtotal,
+      shippingCharge: order.shippingCharge,
+      total: order.grandTotal
     };
 
     // Create PDF document
@@ -79,7 +79,10 @@ export const generateInvoiceService = async (orderId: string): Promise<PDFDocume
       .text(`Invoice Number: ${invoiceData.invoiceId}`, 50)
       .text(`Invoice Date: ${invoiceData.date.toLocaleDateString('bn-BD')}`);
 
-    doc.moveTo(50, doc.y + 10).lineTo(550, doc.y + 10).stroke();
+    doc
+      .moveTo(50, doc.y + 10)
+      .lineTo(550, doc.y + 10)
+      .stroke();
     doc.moveDown(1);
 
     // Customer details
@@ -91,57 +94,69 @@ export const generateInvoiceService = async (orderId: string): Promise<PDFDocume
     doc.text(invoiceData.customer.address, 50);
 
     doc.moveDown(1);
-    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+    doc
+      .moveTo(50, doc.y)
+      .lineTo(550, doc.y)
+      .stroke();
     doc.moveDown(0.5);
 
     // Items table header
     const startX = 50;
-    const colWidth = 120;
+    const colWidth = 110;
     const row1Y = doc.y;
 
     doc.fontSize(9).font('Helvetica-Bold');
     doc.text('Item', startX, row1Y);
-    doc.text('Qty', startX + colWidth * 2, row1Y);
-    doc.text('Price (৳)', startX + colWidth * 3, row1Y);
-    doc.text('Total (৳)', startX + colWidth * 4, row1Y);
+    doc.text('Qty', startX + colWidth * 2.5, row1Y);
+    doc.text('Price (Tk)', startX + colWidth * 3.5, row1Y);
+    doc.text('Total (Tk)', startX + colWidth * 4.5, row1Y);
 
-    doc.moveTo(50, doc.y + 15).lineTo(550, doc.y + 15).stroke();
+    doc
+      .moveTo(50, doc.y + 15)
+      .lineTo(550, doc.y + 15)
+      .stroke();
     doc.moveDown(1);
 
     // Items
     doc.fontSize(8).font('Helvetica');
     invoiceData.items.forEach((item) => {
       const itemY = doc.y;
-      doc.text(item.title.substring(0, 25), startX, itemY, { width: colWidth });
-      doc.text(item.quantity.toString(), startX + colWidth * 2, itemY);
-      doc.text(item.price.toString(), startX + colWidth * 3, itemY);
-      doc.text((item.quantity * item.price).toString(), startX + colWidth * 4, itemY);
+      doc.text(item.title.substring(0, 30), startX, itemY, { width: colWidth * 2 });
+      doc.text(item.quantity.toString(), startX + colWidth * 2.5, itemY);
+      doc.text(item.price.toString(), startX + colWidth * 3.5, itemY);
+      doc.text((item.quantity * item.price).toFixed(2), startX + colWidth * 4.5, itemY);
       doc.moveDown(1.5);
     });
 
     // Totals
-    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+    doc
+      .moveTo(50, doc.y)
+      .lineTo(550, doc.y)
+      .stroke();
     doc.moveDown(0.5);
 
     doc.fontSize(9).font('Helvetica');
     const subtotalY = doc.y;
-    doc.text('Subtotal:', startX + colWidth * 3, subtotalY);
-    doc.text(`৳ ${invoiceData.subtotal.toFixed(2)}`, startX + colWidth * 4, subtotalY);
+    doc.text('Subtotal:', startX + colWidth * 3.5, subtotalY);
+    doc.text(`Tk ${invoiceData.subtotal.toFixed(2)}`, startX + colWidth * 4.5, subtotalY);
 
     doc.moveDown(0.5);
     const shippingY = doc.y;
-    doc.text('Shipping Charge:', startX + colWidth * 3, shippingY);
-    doc.text(`৳ ${invoiceData.shippingCharge.toFixed(2)}`, startX + colWidth * 4, shippingY);
+    doc.text('Shipping Charge:', startX + colWidth * 3.5, shippingY);
+    doc.text(`Tk ${invoiceData.shippingCharge.toFixed(2)}`, startX + colWidth * 4.5, shippingY);
 
     doc.moveDown(0.5);
     doc.font('Helvetica-Bold').fontSize(11);
     const totalY = doc.y;
-    doc.text('TOTAL:', startX + colWidth * 3, totalY);
-    doc.text(`৳ ${invoiceData.total.toFixed(2)}`, startX + colWidth * 4, totalY);
+    doc.text('TOTAL:', startX + colWidth * 3.5, totalY);
+    doc.text(`Tk ${invoiceData.total.toFixed(2)}`, startX + colWidth * 4.5, totalY);
 
     // Footer
     doc.moveDown(2);
-    doc.moveTo(50, doc.y).lineTo(550, doc.y).stroke();
+    doc
+      .moveTo(50, doc.y)
+      .lineTo(550, doc.y)
+      .stroke();
     doc.moveDown(0.5);
 
     doc.fontSize(8).font('Helvetica');
@@ -155,6 +170,6 @@ export const generateInvoiceService = async (orderId: string): Promise<PDFDocume
 };
 
 // Convert PDFDocument to stream
-export const getPDFStream = (doc: PDFDocument): Readable => {
+export const getPDFStream = (doc: InstanceType<typeof PDFDocument>): Readable => {
   return doc as any;
 };

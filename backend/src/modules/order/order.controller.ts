@@ -122,16 +122,41 @@ export const uploadPaymentProof = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const parsed = uploadPaymentProofSchema.safeParse(req.body);
-    if (!parsed.success) throw new AppError(parsed.error.message, 400);
-
     const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
-    const result = await OrderService.uploadPaymentProof(id, parsed.data.proofUrl);
+
+    // Check if file was uploaded
+    if (!req.file) {
+      throw new AppError('পেমেন্ট প্রমাণ (ছবি) আপলোড করুন', 400);
+    }
+
+    const proofUrl = (req.file as any).path; // Cloudinary URL from multer
+    const result = await OrderService.uploadPaymentProof(id, proofUrl);
 
     sendResponse(
       res,
       200,
-      'পেমেন্ট প্রমাণ আপলোড হয়েছে, অনুমোদনের অপেক্ষায়',
+      'পেমেন্ট প্রমাণ সফলভাবে আপলোড হয়েছে। এডমিন শীঘ্রই অনুমোদন করবেন।',
+      result
+    );
+  } catch (err) {
+    next(err);
+  }
+};
+
+// ─── Approve Payment (Admin) ──────────────────────────────────────────────────
+export const approvePayment = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const result = await OrderService.approvePayment(id);
+
+    sendResponse(
+      res,
+      200,
+      'পেমেন্ট অনুমোদিত হয়েছে। অর্ডার শীঘ্রই প্রসেস করা হবে।',
       result
     );
   } catch (err) {

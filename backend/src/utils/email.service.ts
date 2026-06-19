@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-import { Order } from '../order/order.model';
+import { Order } from "../modules/order/order.model";
 
 // Email configuration
 const transporter = nodemailer.createTransport({
@@ -35,7 +35,7 @@ export const sendOrderConfirmationEmail = async (
     }
 
     // Calculate total
-    const subtotal = order.totalPrice;
+    const subtotal = order.grandTotal;
     const shippingCharge = 40;
     const total = subtotal + shippingCharge;
 
@@ -99,13 +99,15 @@ export const sendOrderConfirmationEmail = async (
         
         <p style="color: #999; font-size: 12px; text-align: center;">
           মাক্তাবাতুস সালাফ - অনলাইন বুক স্টোর<br>
-          Call: +880-XXX-XXX-XXXX | Email: info@maktabatus-salaf.com
+          Call: 01407-021847 | Email: maktabatussalaf47@gmail.com
+          ডাংগীপাড়া, পবা, রাজশাহী , Rajshahi, Bangladesh, 6203
+          FB Page: https://www.facebook.com/MaktabatusSalaf
         </p>
       </div>
     `;
 
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'noreply@maktabatus-salaf.com',
+      from: process.env.EMAIL_USER,
       to: recipientEmail,
       subject: `অর্ডার নিশ্চিতকরণ - ${orderId}`,
       html: htmlTemplate
@@ -171,7 +173,7 @@ export const sendOrderStatusUpdateEmail = async (
         
         <p style="color: #999; font-size: 12px; text-align: center;">
           মাক্তাবাতুস সালাফ - অনলাইন বুক স্টোর<br>
-          Call: +880-XXX-XXX-XXXX | Email: info@maktabatus-salaf.com
+          Call: 01407-021847 | Email: maktabatussalaf47@gmail.com
         </p>
       </div>
     `;
@@ -234,7 +236,7 @@ export const sendPasswordResetEmail = async (
         
         <p style="color: #999; font-size: 12px; text-align: center;">
           মাক্তাবাতুস সালাফ - অনলাইন বুক স্টোর<br>
-          Call: +880-XXX-XXX-XXXX | Email: info@maktabatus-salaf.com
+          Call: 01407-021847 | Email: maktabatussalaf47@gmail.com
         </p>
       </div>
     `;

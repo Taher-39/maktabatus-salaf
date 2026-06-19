@@ -49,7 +49,7 @@ const getAllOrders = async (query: Record<string, unknown>) => {
 
   const orders = await Order.find(filter)
     .populate('items.book', 'title coverImage price')
-    .populate('user', 'name phone')
+    .populate('customer', 'name phone')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(Number(limit));
@@ -78,7 +78,7 @@ const getMyOrders = async (userId: string) => {
 const getSingleOrder = async (id: string) => {
   const order = await Order.findById(id)
     .populate('items.book', 'title coverImage price author')
-    .populate('user', 'name phone');
+    .populate('customer', 'name phone');
 
   if (!order) {
     throw new AppError('অর্ডার পাওয়া যায়নি', 404);
@@ -91,7 +91,7 @@ const getSingleOrder = async (id: string) => {
 const getOrderByOrderId = async (orderId: string) => {
   const order = await Order.findOne({ orderId })
     .populate('items.book', 'title coverImage price')
-    .populate('user', 'name phone');
+    .populate('customer', 'name phone');
 
   if (!order) {
     throw new AppError('অর্ডার পাওয়া যায়নি', 404);
@@ -125,7 +125,10 @@ const updateOrderStatus = async (
 const uploadPaymentProof = async (id: string, proofUrl: string) => {
   const order = await Order.findByIdAndUpdate(
     id,
-    { paymentProof: proofUrl },
+    { 
+      paymentProof: proofUrl,
+      paymentStatus: 'pending' // Set to pending until admin approves
+    },
     { new: true }
   );
 
@@ -134,6 +137,27 @@ const uploadPaymentProof = async (id: string, proofUrl: string) => {
   }
 
   return order;
+};
+
+// ─── Approve Payment (Admin) ──────────────────────────────────────────────────
+const approvePayment = async (id: string) => {
+  const order = await Order.findById(id);
+
+  if (!order) {
+    throw new AppError('অর্ডার পাওয়া যায়নি', 404);
+  }
+
+  if (!order.paymentProof) {
+    throw new AppError('এই অর্ডারে কোনো পেমেন্ট প্রমাণ নেই', 400);
+  }
+
+  const updatedOrder = await Order.findByIdAndUpdate(
+    id,
+    { paymentStatus: 'approved' },
+    { new: true }
+  );
+
+  return updatedOrder;
 };
 
 // ─── Admin Dashboard Stats ────────────────────────────────────────────────────
@@ -178,6 +202,7 @@ export const OrderService = {
   getOrderByOrderId,
   updateOrderStatus,
   uploadPaymentProof,
+  approvePayment,
   getOrderStats,
   deleteOrder,
 };

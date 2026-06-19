@@ -1,5 +1,6 @@
 import express from 'express';
 import { protect, adminOnly } from '../../middlewares/auth.middleware';
+import { upload } from '../../middlewares/upload.middleware';
 import * as OrderController from './order.controller';
 
 const router = express.Router();
@@ -24,6 +25,14 @@ router.get('/', protect, adminOnly, OrderController.getAllOrders);
 // GET /api/orders/stats — dashboard stats
 router.get('/stats', protect, adminOnly, OrderController.getOrderStats);
 
+// PATCH /api/orders/:id/approve-payment — approve payment by admin
+router.patch(
+  '/:id/approve-payment',
+  protect,
+  adminOnly,
+  OrderController.approvePayment
+);
+
 // ──────────────────────────────────────────────────────────────
 // CUSTOMER ROUTES (Auth required)
 // ──────────────────────────────────────────────────────────────
@@ -34,10 +43,11 @@ router.get('/my-orders', protect, OrderController.getMyOrders);
 // GET /api/orders/track/:orderId — orderId দিয়ে track করো (MS-00001)
 router.get('/track/:orderId', OrderController.getOrderByOrderId);
 
-// PATCH /api/orders/:id/payment-proof — payment proof upload
+// PATCH /api/orders/:id/payment-proof — payment proof upload (with file)
 router.patch(
   '/:id/payment-proof',
   protect,
+  upload.single('paymentProof'),
   OrderController.uploadPaymentProof
 );
 

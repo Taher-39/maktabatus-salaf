@@ -1,13 +1,19 @@
 import { Request, Response, NextFunction } from "express";
 import { sendResponse } from "../../utils/sendResponse";
 import { AppError } from "../../middlewares/errorHandler";
-import { authorSchema, updateAuthorSchema } from "./author.validation";
+import { authorSchema, authorQuerySchema, updateAuthorSchema } from "./author.validation";
 import { getAllAuthors, getAuthorById, createAuthor, updateAuthor, deleteAuthor } from "./author.service";
 
 export const getAllAuthorsHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const authors = await getAllAuthors();
-    sendResponse(res, 200, "সফল", authors);
+    const query = authorQuerySchema.parse(req.query);
+    const result = await getAllAuthors(query);
+    sendResponse(res, 200, "সফল", result.authors, {
+      page: result.page,
+      limit: result.limit,
+      total: result.total,
+      totalPages: result.totalPages,
+    });
   } catch (err) { next(err); }
 };
 

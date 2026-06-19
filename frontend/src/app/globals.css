@@ -1,0 +1,152 @@
+@import "tailwindcss";
+
+:root {
+  --background: #f8faf8;
+  --foreground: #1a2e1a;
+  --primary: #1a5632;
+  --accent: #c9a227;
+}
+
+/* Dark mode variables (toggle via adding 'dark' on html or body) */
+.dark {
+  --background: #07120c;
+  --foreground: #e0e8e0;
+  --primary: #1a5632;
+  --accent: #c9a227;
+}
+
+html {
+  color-scheme: light dark;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.25s ease, color 0.25s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Card utility to keep consistent style across components */
+.card {
+  border-radius: 12px;
+  border: 1px solid rgba(26,86,50,0.06);
+  background: var(--background);
+  box-shadow: 0 1px 6px rgba(10,10,10,0.03);
+  transition: background-color 0.25s ease, border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.dark .card {
+  border-color: rgba(167,243,208,0.18);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.dark .bg-white {
+  background-color: #0f172a !important;
+}
+
+.dark .bg-emerald-50,
+.dark .bg-emerald-100,
+.dark .bg-gray-100,
+.dark .bg-slate-50,
+.dark .bg-slate-100 {
+  background-color: #0f172a !important;
+}
+
+.dark .bg-red-50,
+.dark .bg-amber-50,
+.dark .bg-emerald-50 {
+  background-color: #112d1a !important;
+}
+
+.dark .border-emerald-100,
+.dark .border-emerald-200,
+.dark .border-slate-200,
+.dark .border-gray-200 {
+  border-color: rgba(167,243,208,0.18) !important;
+}
+
+.dark .text-gray-500,
+.dark .text-gray-600,
+.dark .text-slate-500,
+.dark .text-slate-600 {
+  color: #9ca3af !important;
+}
+
+.dark .text-gray-700,
+.dark .text-gray-900,
+.dark .text-slate-700,
+.dark .text-slate-900,
+.dark .text-gray-300,
+.dark .text-slate-300 {
+  color: #e0e8e0 !important;
+}
+
+.dark .text-emerald-900,
+.dark .text-emerald-950 {
+  color: #d1fae5 !important;
+}
+
+.dark .text-amber-600,
+.dark .text-amber-700,
+.dark .text-amber-900 {
+  color: #fcd34d !important;
+}
+
+.dark .text-white {
+  color: #f0f0f0 !important;
+}
+
+.dark .text-emerald-700,
+.dark .text-emerald-800 {
+  color: #86efac !important;
+}
+
+.dark .hover\:bg-emerald-800:hover {
+  background-color: #064e1d !important;
+}
+
+.dark .shadow-sm {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35) !important;
+}
+
+/* Heading text colors in dark mode */
+.dark h1,
+.dark h2,
+.dark h3,
+.dark h4,
+.dark h5,
+.dark h6 {
+  color: #e0e8e0 !important;
+}
+
+/* Links in dark mode */
+.dark a {
+  color: #86efac !important;
+}
+
+.dark a:hover {
+  color: #d1fae5 !important;
+}
+
+/* Ensure proper text rendering */
+.dark {
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-noto-bengali);
+}
+
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 
-export type TUserRole = 'user' | 'admin';
+export type TUserRole = 'customer' | 'admin';
 
 export type TUserAddress = {
   village?: string;

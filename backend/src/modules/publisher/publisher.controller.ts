@@ -1,12 +1,15 @@
 import { Request, Response, NextFunction } from "express";
 import { sendResponse } from "../../utils/sendResponse";
 import { AppError } from "../../middlewares/errorHandler";
-import { publisherSchema, updatePublisherSchema } from "./publisher.validation";
+import { publisherSchema, publisherQuerySchema, updatePublisherSchema } from "./publisher.validation";
 import { getAllPublishers, createPublisher, updatePublisher, deletePublisher } from "./publisher.service";
 
 export const getAllPublishersHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
-  try { sendResponse(res, 200, "সফল", await getAllPublishers()); }
-  catch (err) { next(err); }
+  try {
+    const query = publisherQuerySchema.parse(req.query);
+    const { publishers, page, limit, total, totalPages } = await getAllPublishers(query);
+    sendResponse(res, 200, "সফল", publishers, { page, limit, total, totalPages });
+  } catch (err) { next(err); }
 };
 
 export const createPublisherHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
