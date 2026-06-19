@@ -270,5 +270,4 @@ export default function AdminCategoriesPage() {
       )}
     </div>
     </DashboardLayout>
-  );
 }
