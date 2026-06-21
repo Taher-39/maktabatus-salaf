@@ -15,6 +15,7 @@ import categoryRoutes  from "./modules/category/category.routes";
 import publisherRoutes from "./modules/publisher/publisher.routes";
 import OrderRoutes     from "./modules/order/order.routes";
 import userRoutes      from './modules/user/user.routes';
+import videoRoutes     from "./modules/video/video.routes";
 // import invoiceRoutes   from "./modules/invoice/invoice.routes";
 
 
@@ -45,6 +46,7 @@ app.use("/api/v1/publishers", publisherRoutes);
 app.use("/api/v1/books",      bookRoutes);
 app.use("/api/v1/orders", OrderRoutes);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/videos', videoRoutes);
 // app.use('/api/v1/invoices', invoiceRoutes);
 
 app.use(errorHandler);

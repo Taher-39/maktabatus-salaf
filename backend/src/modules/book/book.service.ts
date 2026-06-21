@@ -58,7 +58,7 @@ export const getBookBySlug = async (slug: string) => {
     { $inc: { viewCount: 1 } },
     { new: true }
   )
-    .populate("author", "name")
+    .populate("author", "name description image")
     .populate("category", "name")
     .populate("publisher", "name");
 
@@ -68,7 +68,7 @@ export const getBookBySlug = async (slug: string) => {
 
 export const getPopularBooks = async (limit = 8) => {
   return Book.find({ isActive: true })
-    .populate("author", "name")
+    .populate("author", "name description image")
     .populate("category", "name")
     .sort({ soldCount: -1 })
     .limit(limit);
@@ -76,7 +76,7 @@ export const getPopularBooks = async (limit = 8) => {
 
 export const getNewBooks = async (limit = 8) => {
   return Book.find({ isActive: true })
-    .populate("author", "name")
+    .populate("author", "name description image")
     .populate("category", "name")
     .sort({ createdAt: -1 })
     .limit(limit);
@@ -84,7 +84,7 @@ export const getNewBooks = async (limit = 8) => {
 
 export const getBooksByPublisher = async (publisherId: string, limit = 8) => {
   return Book.find({ publisher: publisherId, isActive: true })
-    .populate("author", "name")
+    .populate("author", "name description image")
     .populate("category", "name")
     .sort({ createdAt: -1 })
     .limit(limit);

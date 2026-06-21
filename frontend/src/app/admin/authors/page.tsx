@@ -8,6 +8,7 @@ import { Author } from "@/lib/types";
 import DashboardLayout from "@/components/admin/DashboardLayout";
 import { FiEdit2, FiTrash2, FiPlus, FiSearch } from "react-icons/fi";
 import { useToast } from "@/components/shared/ToastProvider";
+import RichTextEditor from "@/components/shared/RichTextEditor";
 
 export default function AdminAuthorsPage() {
   const router = useRouter();
@@ -94,6 +95,8 @@ export default function AdminAuthorsPage() {
       if (imageFile) payload.append("image", imageFile);
 
       if (editingId) {
+        console.log("Updating author with ID:", editingId);
+        console.log("Payload contents:", Array.from(payload.entries()));
         await api.put(`/authors/${editingId}`, payload, {
           headers: { "Content-Type": "multipart/form-data" },
         });
@@ -200,7 +203,15 @@ export default function AdminAuthorsPage() {
                       <div className="font-semibold">{author.name}</div>
                       {author.description && (
                         <div className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                          {author.description}
+                          {author.description
+                            .replace(/<[^>]*>/g, " ")
+                            .replace(/&nbsp;/g, " ")
+                            .replace(/\s+/g, " ")
+                            .trim()
+                            .split(" ")
+                            .slice(0, 10)
+                            .join(" ")}
+                          {author.description.replace(/<[^>]*>/g, " ").trim().split(/\s+/).length > 10 && "..."}
                         </div>
                       )}
                     </td>
@@ -272,12 +283,44 @@ export default function AdminAuthorsPage() {
 
         {/* Modal */}
         {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
-                {editingId ? "Edit Author" : "Add Author"}
-              </h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div
+              data-modal
+              className="flex max-h-[90vh] w-full max-w-md flex-col rounded-lg bg-white shadow-xl dark:bg-gray-800"
+            >
+              {/* Sticky header */}
+              <div className="flex shrink-0 items-center justify-between border-b border-gray-200 px-6 py-4 dark:border-gray-700">
+                <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                  {editingId ? "Edit Author" : "Add Author"}
+                </h2>
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  aria-label="Close modal"
+                  className="rounded-md p-1 text-gray-500 transition hover:bg-gray-100 hover:text-gray-900 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18"></line>
+                    <line x1="6" y1="6" x2="18" y2="18"></line>
+                  </svg>
+                </button>
+              </div>
+
+              {/* Scrollable body */}
+              <form
+                onSubmit={handleSubmit}
+                className="flex-1 space-y-4 overflow-y-auto px-6 py-4"
+              >
                 <div>
                   <label className="block text-sm font-medium text-gray-900 dark:text-white mb-1">
                     Author Name *
@@ -293,21 +336,44 @@ export default function AdminAuthorsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-900 dark:text-white mb-1">
-                    Image
+                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">
+                    Author Photo
                   </label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0] || null;
-                      setImageFile(file);
-                      if (file) setImagePreview(URL.createObjectURL(file));
-                    }}
-                    className="w-full"
-                  />
+                  <label className="mt-2 flex cursor-pointer items-center justify-between rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 transition hover:border-emerald-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">
+                    <span className="truncate">
+                      {imageFile
+                        ? imageFile.name
+                        : imagePreview
+                          ? "Change author photo"
+                          : "Choose author photo"}
+                    </span>
+                    <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">
+                      Browse
+                    </span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setImageFile(file);
+                        if (file) setImagePreview(URL.createObjectURL(file));
+                      }}
+                      className="sr-only"
+                    />
+                  </label>
+                  {imageFile && (
+                    <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                      Selected: {imageFile.name}
+                    </div>
+                  )}
                   {imagePreview && (
-                    <img src={imagePreview} alt="preview" className="mt-2 w-24 h-24 object-cover rounded" />
+                    <div className="mt-3">
+                      <img
+                        src={imagePreview}
+                        alt="Author preview"
+                        className="h-24 w-24 rounded-full border border-gray-200 object-cover shadow-sm dark:border-gray-700"
+                      />
+                    </div>
                   )}
                 </div>
                 <div>
@@ -328,33 +394,40 @@ export default function AdminAuthorsPage() {
                   <label className="block text-sm font-medium text-gray-900 dark:text-white mb-1">
                     Description
                   </label>
-                  <textarea
-                    rows={3}
+                  <RichTextEditor
                     value={formData.description}
-                    onChange={(e) =>
-                      setFormData({ ...formData, description: e.target.value })
+                    onChange={(value) =>
+                      setFormData({ ...formData, description: value })
                     }
-                    placeholder="Optional author description"
-                    className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:border-emerald-500"
+                    placeholder="লেখকের সংক্ষিপ্ত বায়োগ্রাফি লিখুন..."
                   />
                 </div>
-                <div className="flex gap-2 pt-4">
-                  <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    className="flex-1 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={submitting}
-                    className="flex-1 px-4 py-2 bg-emerald-600 dark:bg-emerald-700 text-white rounded-lg hover:bg-emerald-700 dark:hover:bg-emerald-600 disabled:opacity-50 transition"
-                  >
-                    {submitting ? "Saving..." : "Save"}
-                  </button>
-                </div>
               </form>
+
+              {/* Sticky footer */}
+              <div className="flex shrink-0 gap-2 border-t border-gray-200 bg-white px-6 py-4 dark:border-gray-700 dark:bg-gray-800">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-gray-900 transition hover:bg-gray-100 dark:border-gray-600 dark:text-white dark:hover:bg-gray-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const form = (e.currentTarget as HTMLButtonElement)
+                      .closest("[data-modal]")
+                      ?.querySelector("form") as HTMLFormElement | null;
+                    form?.requestSubmit();
+                  }}
+                  disabled={submitting}
+                  className="flex-1 rounded-lg bg-emerald-600 px-4 py-2 text-white transition hover:bg-emerald-700 disabled:opacity-50 dark:bg-emerald-700 dark:hover:bg-emerald-600"
+                >
+                  {submitting ? "Saving..." : "Save"}
+                </button>
+              </div>
             </div>
           </div>
         )}

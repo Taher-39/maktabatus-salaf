@@ -269,5 +269,6 @@ export default function AdminPublishersPage() {
         </div>
       )}
     </div>
-    </DashboardLayout>
+  </DashboardLayout>
+);
 }

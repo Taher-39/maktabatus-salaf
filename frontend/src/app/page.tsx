@@ -6,6 +6,7 @@ import Features from "@/components/home/Features";
 import Categories from "@/components/home/Categories";
 import Stats from "@/components/home/Stats";
 import Testimonials from "@/components/home/Testimonials";
+import VideoReviews from "@/components/home/VideoReviews";
 import BlogPreview from "@/components/home/BlogPreview";
 import Newsletter from "@/components/home/Newsletter";
 import CTA from "@/components/home/CTA";
@@ -29,6 +30,7 @@ export default function HomePage() {
         <NewBooks />
         <Stats />
         <Testimonials />
+        <VideoReviews />
         <BlogPreview />
         <Newsletter />
         <CTA />

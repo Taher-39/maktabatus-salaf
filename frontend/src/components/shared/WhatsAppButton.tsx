@@ -3,7 +3,7 @@
 import { FaWhatsapp } from "react-icons/fa";
 
 const WHATSAPP =
-  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "8801712345678";
+  process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "8801407021847";
 
 export default function WhatsAppButton() {
   return (

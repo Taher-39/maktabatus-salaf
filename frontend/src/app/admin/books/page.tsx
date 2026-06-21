@@ -8,6 +8,7 @@ import DashboardLayout from "@/components/admin/DashboardLayout";
 import { useToast } from "@/components/shared/ToastProvider";
 import { Book, Category, Author, Publisher } from "@/lib/types";
 import { FiEdit2, FiTrash2, FiPlus } from "react-icons/fi";
+import RichTextEditor from "@/components/shared/RichTextEditor";
 
 const initialFormState = {
   title: "",
@@ -51,9 +52,9 @@ export default function AdminBooksPage() {
     try {
       const [booksRes, categoriesRes, authorsRes, publishersRes] = await Promise.all([
         api.get(`/books?page=${page}&limit=10`),
-        api.get("/categories?limit=100"),
-        api.get("/authors?limit=100"),
-        api.get("/publishers?limit=100"),
+        api.get("/categories?limit=50"),
+        api.get("/authors?limit=50"),
+        api.get("/publishers?limit=50"),
       ]);
 
       setBooks(booksRes.data?.data || []);
@@ -255,8 +256,8 @@ export default function AdminBooksPage() {
         )}
 
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-            <div className="w-full max-w-3xl rounded-3xl bg-white p-6 shadow-xl dark:bg-gray-900">
+          <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4">
+            <div className="w-full max-w-3xl rounded-3xl bg-white p-6 shadow-xl dark:bg-gray-900 max-h-[calc(100vh-4rem)] overflow-hidden">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{editingId ? "Edit Book" : "Add Book"}</h2>
@@ -270,7 +271,7 @@ export default function AdminBooksPage() {
                   ×
                 </button>
               </div>
-              <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2">
+              <form onSubmit={handleSubmit} className="grid gap-4 sm:grid-cols-2 overflow-y-auto pr-2" style={{ maxHeight: 'calc(100vh - 14rem)' }}>
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">Title *</label>
                   <input
@@ -348,31 +349,52 @@ export default function AdminBooksPage() {
                 </div>
                 <div className="sm:col-span-2">
                   <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">Description</label>
-                  <textarea
-                    value={formData.description}
-                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                    rows={4}
-                    className="mt-2 w-full rounded-xl border border-gray-300 bg-white px-4 py-2 text-gray-900 shadow-sm focus:border-emerald-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
-                  />
+                  <div className="mt-2">
+                    <RichTextEditor
+                      value={formData.description}
+                      onChange={(value) =>
+                        setFormData({ ...formData, description: value })
+                      }
+                      placeholder="বইয়ের বিস্তারিত বিবরণ লিখুন..."
+                    />
+                  </div>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">Cover Image</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setCoverFile(e.target.files?.[0] || null)}
-                    className="mt-2 w-full text-sm text-gray-900 dark:text-gray-100"
-                  />
+                  <label className="mt-2 flex cursor-pointer items-center justify-between rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 transition hover:border-emerald-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">
+                    <span>{coverFile ? coverFile.name : "Choose cover image"}</span>
+                    <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">Browse</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => setCoverFile(e.target.files?.[0] || null)}
+                      className="sr-only"
+                    />
+                  </label>
+                  {coverFile && (
+                    <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">Selected: {coverFile.name}</div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">Preview Pages</label>
-                  <input
-                    type="file"
-                    accept="image/*,application/pdf"
-                    multiple
-                    onChange={(e) => setPreviewFiles(Array.from(e.target.files || []))}
-                    className="mt-2 w-full text-sm text-gray-900 dark:text-gray-100"
-                  />
+                  <label className="mt-2 flex cursor-pointer items-center justify-between rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 transition hover:border-emerald-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">
+                    <span>{previewFiles.length > 0 ? `${previewFiles.length} file${previewFiles.length > 1 ? "s" : ""} selected` : "Choose preview files"}</span>
+                    <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">Browse</span>
+                    <input
+                      type="file"
+                      accept="image/*,application/pdf"
+                      multiple
+                      onChange={(e) => setPreviewFiles(Array.from(e.target.files || []))}
+                      className="sr-only"
+                    />
+                  </label>
+                  {previewFiles.length > 0 && (
+                    <ul className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400">
+                      {previewFiles.map((file) => (
+                        <li key={file.name}>{file.name}</li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
                 <div className="sm:col-span-2 flex flex-col gap-3 pt-4 sm:flex-row sm:justify-end">
                   <button

@@ -65,14 +65,16 @@ export default function BooksPage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <h1 className="mb-6 text-2xl font-bold text-emerald-900">সকল বই</h1>
+      <h1 className="mb-6 text-2xl font-bold text-emerald-900 dark:text-emerald-100">
+        সকল বই
+      </h1>
 
       <div className="mb-6 flex flex-col gap-4 md:flex-row">
         <input
           type="text"
           placeholder="বই খুঁজুন..."
           onChange={(e) => debouncedSearch(e.target.value)}
-          className="flex-1 rounded-lg border border-emerald-200 px-4 py-2 focus:border-emerald-500 focus:outline-none"
+          className="flex-1 rounded-lg border border-emerald-200 bg-white px-4 py-2 text-emerald-900 placeholder:text-emerald-400 focus:border-emerald-500 focus:outline-none dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-100 dark:placeholder:text-emerald-500"
         />
         <select
           value={category}
@@ -80,7 +82,7 @@ export default function BooksPage() {
             setCategory(e.target.value);
             setPage(1);
           }}
-          className="rounded-lg border border-emerald-200 px-4 py-2 focus:border-emerald-500 focus:outline-none"
+          className="rounded-lg border border-emerald-200 bg-white px-4 py-2 text-emerald-900 focus:border-emerald-500 focus:outline-none dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-100"
         >
           <option value="">সকল ক্যাটাগরি</option>
           {categories.map((cat) => (
@@ -95,7 +97,7 @@ export default function BooksPage() {
             setSortBy(e.target.value);
             setPage(1);
           }}
-          className="rounded-lg border border-emerald-200 px-4 py-2 focus:border-emerald-500 focus:outline-none"
+          className="rounded-lg border border-emerald-200 bg-white px-4 py-2 text-emerald-900 focus:border-emerald-500 focus:outline-none dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-100"
         >
           {sortOptions.map((opt) => (
             <option key={opt.value} value={opt.value}>
@@ -108,7 +110,9 @@ export default function BooksPage() {
       {loading ? (
         <LoadingSpinner />
       ) : books.length === 0 ? (
-        <p className="py-12 text-center text-gray-500">কোনো বই পাওয়া যায়নি</p>
+        <p className="py-12 text-center text-gray-500 dark:text-emerald-300">
+          কোনো বই পাওয়া যায়নি
+        </p>
       ) : (
         <>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
@@ -122,17 +126,17 @@ export default function BooksPage() {
               <button
                 disabled={page <= 1}
                 onClick={() => setPage((p) => p - 1)}
-                className="rounded-lg border px-4 py-2 disabled:opacity-40"
+                className="rounded-lg border border-emerald-200 bg-white px-4 py-2 text-emerald-900 transition hover:bg-emerald-50 disabled:opacity-40 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-100 dark:hover:bg-emerald-900"
               >
                 আগে
               </button>
-              <span className="flex items-center px-4 text-sm text-gray-600">
+              <span className="flex items-center px-4 text-sm text-gray-600 dark:text-emerald-300">
                 {page} / {totalPages}
               </span>
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => p + 1)}
-                className="rounded-lg border px-4 py-2 disabled:opacity-40"
+                className="rounded-lg border border-emerald-200 bg-white px-4 py-2 text-emerald-900 transition hover:bg-emerald-50 disabled:opacity-40 dark:border-emerald-700 dark:bg-emerald-950 dark:text-emerald-100 dark:hover:bg-emerald-900"
               >
                 পরে
               </button>

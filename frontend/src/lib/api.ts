@@ -103,3 +103,15 @@ export async function getOrderById(id: string) {
   const { data } = await api.get<ApiResponse<Order>>(`/orders/${id}`);
   return data;
 }
+
+export async function getVideos(limit: number = 6) {
+  try {
+    const { data } = await api.get<ApiResponse<any[]>>("/videos", { 
+      params: { limit } 
+    });
+    return data;
+  } catch (error) {
+    console.error("Failed to fetch videos:", error);
+    return { success: false, data: [] };
+  }
+}

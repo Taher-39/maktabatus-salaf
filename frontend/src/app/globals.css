@@ -150,3 +150,96 @@ body {
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+/* Instagram gradient hover for social icon */
+.instagram-icon {
+  background-image: linear-gradient(
+    45deg,
+    #f9ce34 0%,
+    #ee2a7b 50%,
+    #6228d7 100%
+  );
+  background-size: 100% 100%;
+  background-color: #064e3b; /* fallback emerald-900 */
+}
+
+.instagram-icon:hover {
+  color: #ffffff !important;
+}
+
+.instagram-icon svg {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* React-Quill dark mode tweaks */
+.rich-text-editor .ql-toolbar {
+  border-top-left-radius: 0.5rem;
+  border-top-right-radius: 0.5rem;
+  border-color: #d1d5db;
+  background: #f9fafb;
+}
+.rich-text-editor .ql-container {
+  border-bottom-left-radius: 0.5rem;
+  border-bottom-right-radius: 0.5rem;
+  border-color: #d1d5db;
+  background: #ffffff;
+  color: #111827;
+  font-size: 0.95rem;
+}
+.rich-text-editor .ql-editor {
+  min-height: 160px;
+}
+.rich-text-editor .ql-editor.ql-blank::before {
+  color: #9ca3af;
+  font-style: normal;
+}
+
+.dark .rich-text-editor .ql-toolbar {
+  background: #1f2937;
+  border-color: #374151;
+  color: #e5e7eb;
+}
+.dark .rich-text-editor .ql-container {
+  background: #111827;
+  border-color: #374151;
+  color: #f3f4f6;
+}
+.dark .rich-text-editor .ql-editor.ql-blank::before {
+  color: #9ca3af;
+}
+.dark .rich-text-editor .ql-stroke {
+  stroke: #d1d5db !important;
+}
+.dark .rich-text-editor .ql-fill {
+  fill: #d1d5db !important;
+}
+.dark .rich-text-editor .ql-picker-label,
+.dark .rich-text-editor .ql-picker-item {
+  color: #d1d5db !important;
+}
+.dark .rich-text-editor .ql-picker-options {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+.dark .rich-text-editor .ql-snow .ql-picker-label:hover,
+.dark .rich-text-editor .ql-snow .ql-picker-item:hover {
+  color: #34d399 !important;
+}
+.dark .rich-text-editor .ql-snow .ql-picker-label:hover .ql-stroke,
+.dark .rich-text-editor .ql-snow .ql-picker-item:hover .ql-stroke {
+  stroke: #34d399 !important;
+}
+.dark .rich-text-editor .ql-snow.ql-toolbar button:hover,
+.dark .rich-text-editor .ql-snow.ql-toolbar button.ql-active {
+  color: #34d399;
+}
+.dark .rich-text-editor .ql-snow.ql-toolbar button:hover .ql-stroke,
+.dark .rich-text-editor .ql-snow.ql-toolbar button.ql-active .ql-stroke {
+  stroke: #34d399 !important;
+}
+.dark .rich-text-editor .ql-snow.ql-toolbar button:hover .ql-fill,
+.dark .rich-text-editor .ql-snow.ql-toolbar button.ql-active .ql-fill {
+  fill: #34d399 !important;
+}

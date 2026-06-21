@@ -4,13 +4,12 @@ export const authorSchema = z.object({
   name: z.string().min(2, "লেখকের নাম দিন"),
   slug: z
     .string()
-    .optional()
     .transform((value) => (value ? value.trim() : ""))
     .refine(
       (value) => value === "" || /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(value),
       "স্লাগ শুধুমাত্র ছোট হাতের অক্ষর, সংখ্যা এবং হাইফেন থাকতে পারে"
     ),
-  description: z.string().optional().default(""),
+  description: z.string().min(10, "লেখকের বিবরণ দিন"),
 });
 
 export const updateAuthorSchema = authorSchema.partial();
