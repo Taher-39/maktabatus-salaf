@@ -21,7 +21,8 @@ export const getAllReviewsHandler = async (req: Request, res: Response, next: Ne
 
 export const getBookReviewsHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const { bookId } = req.params;
+    const bookId = Array.isArray(req.params.bookId) ? req.params.bookId[0] : req.params.bookId;
+    if (!bookId) throw new AppError("bookId is required", 400);
     const parsed = reviewQuerySchema.safeParse(req.query);
     if (!parsed.success) throw new AppError(parsed.error.message, 400);
     const result = await getBookReviews(bookId, parsed.data);
@@ -34,7 +35,9 @@ export const getBookReviewsHandler = async (req: Request, res: Response, next: N
 
 export const getReviewByIdHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const review = await getReviewById(req.params.id);
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    if (!id) throw new AppError("id is required", 400);
+    const review = await getReviewById(id);
     sendResponse(res, 200, "সফল", review);
   } catch (err) { next(err); }
 };
@@ -43,30 +46,43 @@ export const createReviewHandler = async (req: Request, res: Response, next: Nex
   try {
     const parsed = createReviewSchema.safeParse(req.body);
     if (!parsed.success) throw new AppError(parsed.error.message, 400);
-    const review = await createReview(parsed.data, (req as any).user._id);
+    console.log("User ID from request:", req.user?.userId, parsed); // Debugging line
+    const userId = req.user?.userId;
+    if (!userId) throw new AppError("Authentication required", 401);
+    const review = await createReview(parsed.data, userId);
     sendResponse(res, 201, "রিভিউ তৈরি হয়েছে", review);
   } catch (err) { next(err); }
 };
 
 export const updateReviewHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    if (!id) throw new AppError("id is required", 400);
     const parsed = updateReviewSchema.safeParse(req.body);
     if (!parsed.success) throw new AppError(parsed.error.message, 400);
-    const review = await updateReview(req.params.id, parsed.data, (req as any).user._id);
+    const userId = req.user?.userId;
+    if (!userId) throw new AppError("Authentication required", 401);
+    const review = await updateReview(id, parsed.data, userId);
     sendResponse(res, 200, "আপডেট হয়েছে", review);
   } catch (err) { next(err); }
 };
 
 export const deleteReviewHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await deleteReview(req.params.id, (req as any).user._id);
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    if (!id) throw new AppError("id is required", 400);
+    const userId = req.user?.userId;
+    if (!userId) throw new AppError("Authentication required", 401);
+    await deleteReview(id, userId);
     sendResponse(res, 200, "ডিলিট হয়েছে");
   } catch (err) { next(err); }
 };
 
 export const markHelpfulHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await markHelpful(req.params.id);
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    if (!id) throw new AppError("id is required", 400);
+    await markHelpful(id);
     sendResponse(res, 200, "হেল্পফুল মার্ক করা হয়েছে");
   } catch (err) { next(err); }
 };

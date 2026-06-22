@@ -3,8 +3,7 @@ import { z } from "zod";
 export const createReviewSchema = z.object({
   book:    z.string().min(1, "বই নির্বাচন করুন"),
   rating:  z.number().min(1, "রেটিং দিন").max(5, "রেটিং ১-৫ এর মধ্যে হতে হবে"),
-  title:   z.string().min(3, "শিরোনাম কমপক্ষে ৩ অক্ষর দিন"),
-  comment: z.string().min(10, "রিভিউ কমপক্ষে ১০ অক্ষর দিন"),
+  comment: z.string().min(4, "রিভিউ কমপক্ষে ৪ অক্ষর দিন"), 
 });
 
 export const updateReviewSchema = createReviewSchema.partial();

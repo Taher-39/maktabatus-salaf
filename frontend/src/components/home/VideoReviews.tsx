@@ -18,24 +18,24 @@ interface Video {
 const fallbackVideos: Video[] = [
   {
     id: "1",
-    title: "ইসলামী জ্ঞানের গুরুত্ব",
-    description: "আমাদের বই সংগ্রহ থেকে বাছাই করা সেরা বই গুলি সম্পর্কে জানুন।",
-    videoId: "dQw4w9WgXcQ",
-    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+    title: "সিলসিলা ছহীহ (Silsila Sahiha)",
+    description: "আধুনিক যুগের শ্রেষ্ঠ মুহাদ্দিস শাইখ আল্লামা মুহাম্মাদ নাসিরুদ্দীন আলবানী (রহ.) কর্তৃক সংকলিত একটি বিশ্বস্ত ও প্রসিদ্ধ হাদিস গ্রন্থ",
+    videoId: "ZYmNfJ_g2Bo",
+    thumbnail: "https://i.ytimg.com/an/GIDiVMIjPEpW22rcCefrig/featured_channel.jpg?v=695b70b7",
   },
   {
     id: "2",
-    title: "বই পড়ার সুবিধা",
-    description: "কেন প্রতিদিন বই পড়া আমাদের জীবনের অংশ হওয়া উচিত।",
-    videoId: "dQw4w9WgXcQ",
-    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+    title: "চিত্রসহ তাজবীদ শিক্ষা | ড. আয়মান রুশদী সুওয়াইদ",
+    description: "বিশ্বব্যাপী বেস্ট সেলার তাজবীদ বইয়ের বাংলা সংস্করণ!লেখক: ড. আয়মান রুশদী সুওয়াইদ ",
+    videoId: "yy8hh3LNda4",
+    thumbnail: "https://i.ytimg.com/an/GIDiVMIjPEpW22rcCefrig/featured_channel.jpg?v=695b70b7",
   },
   {
     id: "3",
-    title: "নতুন সংগ্রহ আসছে",
+    title: "রাসূল ﷺ-এর সুন্নাতের সাথে প্রতিদিন",
     description: "এই মাসে আমরা নতুন ৫০টি বই যোগ করছি আমাদের স্টোরে।",
-    videoId: "dQw4w9WgXcQ",
-    thumbnail: "https://img.youtube.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+    videoId: "otqj9jzTAqE",
+    thumbnail: "https://i.ytimg.com/vi/otqj9jzTAqE/hqdefault.jpg?sqp=-oaymwFECKgBEF5IWvKriqkDNwgBFQAAiEIYAdgBAeIBCggYEAIYBjgBQAHwAQH4Af4JgALQBYoCDAgAEAEYVSBlKF4wD7gC8xg=\u0026rs=AOn4CLBR93Q532vbqdVLNsk3sV5AXwwoag",
   },
 ];
 

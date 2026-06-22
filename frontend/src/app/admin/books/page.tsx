@@ -19,6 +19,9 @@ const initialFormState = {
   publisher: "",
   price: "",
   stock: "",
+  bookPage: "",
+  weight: "",
+  edition: "",
 };
 
 export default function AdminBooksPage() {
@@ -37,7 +40,7 @@ export default function AdminBooksPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState(initialFormState);
   const [coverFile, setCoverFile] = useState<File | null>(null);
-  const [previewFiles, setPreviewFiles] = useState<File[]>([]);
+  const [previewPdf, setPreviewPdf] = useState<File | null>(null);
 
   useEffect(() => {
     if (!user || user.role !== "admin") {
@@ -82,14 +85,17 @@ export default function AdminBooksPage() {
         publisher: typeof book.publisher === "string" ? book.publisher : book.publisher._id,
         price: book.price.toString(),
         stock: book.stock.toString(),
+        bookPage: book.bookPage?.toString() || "0",
+        weight: book.weight?.toString() || "0",
+        edition: book.edition?.toString() || "1",
       });
       setCoverFile(null);
-      setPreviewFiles([]);
+      setPreviewPdf(null);
     } else {
       setEditingId(null);
       setFormData(initialFormState);
       setCoverFile(null);
-      setPreviewFiles([]);
+      setPreviewPdf(null);
     }
     setIsModalOpen(true);
   };
@@ -99,7 +105,7 @@ export default function AdminBooksPage() {
     setEditingId(null);
     setFormData(initialFormState);
     setCoverFile(null);
-    setPreviewFiles([]);
+    setPreviewPdf(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -121,9 +127,12 @@ export default function AdminBooksPage() {
       payload.append("publisher", formData.publisher);
       payload.append("price", formData.price || "0");
       payload.append("stock", formData.stock || "0");
+      payload.append("bookPage", formData.bookPage || "0"); 
+      payload.append("weight", formData.weight || "0"); 
+      payload.append("edition", formData.edition || "1");
 
       if (coverFile) payload.append("coverImage", coverFile);
-      previewFiles.forEach((file) => payload.append("previewPages", file));
+      if (previewPdf) payload.append("previewPdf", previewPdf);
 
       if (editingId) {
         await api.put(`/books/${editingId}`, payload, {
@@ -221,7 +230,7 @@ export default function AdminBooksPage() {
                         </button>
                         <button
                           onClick={() => handleDelete(book._id)}
-                          className="p-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-700 dark:text-red-100 dark:hover:bg-red-600 transition"
+                          className="p-2 rounded-lg bg-red-100 text-red-700 hover:bg-red-200 dark:bg-red-700 dark:text-red-100 dark:hover:bg-slate-600 transition"
                           aria-label="Delete book"
                         >
                           <FiTrash2 className="w-4 h-4" />
@@ -257,7 +266,7 @@ export default function AdminBooksPage() {
 
         {isModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4">
-            <div className="w-full max-w-3xl rounded-3xl bg-white p-6 shadow-xl dark:bg-gray-900 max-h-[calc(100vh-4rem)] overflow-hidden">
+            <div className="w-full max-w-3xl rounded-3xl bg-white p-6 shadow-xl dark:bg-gray-900 max-h-[calc(100vh-4rem)] overflow-y-auto">
               <div className="flex items-center justify-between mb-6">
                 <div>
                   <h2 className="text-2xl font-bold text-gray-900 dark:text-white">{editingId ? "Edit Book" : "Add Book"}</h2>
@@ -376,26 +385,88 @@ export default function AdminBooksPage() {
                   )}
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">Preview Pages</label>
+                  <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">
+                    বইয়ের প্রিভিউ (PDF)
+                  </label>
                   <label className="mt-2 flex cursor-pointer items-center justify-between rounded-xl border border-dashed border-gray-300 bg-gray-50 px-4 py-3 text-sm text-gray-700 transition hover:border-emerald-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200">
-                    <span>{previewFiles.length > 0 ? `${previewFiles.length} file${previewFiles.length > 1 ? "s" : ""} selected` : "Choose preview files"}</span>
-                    <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">Browse</span>
+                    <span className="truncate max-w-[200px] sm:max-w-xs">
+                      {previewPdf ? previewPdf.name : "পিডিএফ ফাইল সিলেক্ট করুন"}
+                    </span>
+                    <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white shrink-0">
+                      Browse
+                    </span>
                     <input
                       type="file"
-                      accept="image/*,application/pdf"
-                      multiple
-                      onChange={(e) => setPreviewFiles(Array.from(e.target.files || []))}
+                      name="previewPdf"
+                      accept="application/pdf"
+                      multiple={false}
+                      onChange={(e) => {
+                        const file = e.target.files?.[0] || null;
+                        setPreviewPdf(file);
+                      }}
                       className="sr-only"
                     />
                   </label>
-                  {previewFiles.length > 0 && (
-                    <ul className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400">
-                      {previewFiles.map((file) => (
-                        <li key={file.name}>{file.name}</li>
-                      ))}
-                    </ul>
+
+                  {previewPdf && (
+                    <div className="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 rounded-lg bg-gray-100 dark:bg-gray-700/50 px-3 py-1.5">
+                      <span className="truncate">{previewPdf.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => setPreviewPdf(null)}
+                        className="text-red-500 hover:text-red-700 font-bold ml-2"
+                      >
+                        মুছে ফেলুন
+                      </button>
+                    </div>
                   )}
                 </div>
+                
+                <div className="sm:col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">
+                      পৃষ্ঠা সংখ্যা (Page)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="উদা: ৩২০"
+                      value={formData.bookPage}
+                      onChange={(e) => setFormData({ ...formData, bookPage: e.target.value })}
+                      className="mt-1 w-full rounded-xl border border-gray-300 bg-white p-3 text-sm focus:border-emerald-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">
+                      সংস্করণ (Edition)
+                    </label>
+                    <input
+                      type="number"
+                      min="1"
+                      placeholder="উদা: ১"
+                      value={formData.edition}
+                      onChange={(e) => setFormData({ ...formData, edition: e.target.value })}
+                      className="mt-1 w-full rounded-xl border border-gray-300 bg-white p-3 text-sm focus:border-emerald-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">
+                      ওজন (গ্রাম হিসেবে)
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      placeholder="উদা: ২৫০"
+                      required
+                      value={formData.weight}
+                      onChange={(e) => setFormData({ ...formData, weight: e.target.value })}
+                      className="mt-1 w-full rounded-xl border border-gray-300 bg-white p-3 text-sm focus:border-emerald-500 focus:outline-none dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                    />
+                  </div>
+                </div>
+
                 <div className="sm:col-span-2 flex flex-col gap-3 pt-4 sm:flex-row sm:justify-end">
                   <button
                     type="button"

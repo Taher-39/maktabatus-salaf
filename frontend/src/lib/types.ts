@@ -47,6 +47,9 @@ export interface Book {
   viewCount: number;
   isActive: boolean;
   createdAt?: string;
+  bookPage: number;
+  edition: number;
+  weight: number;
 }
 
 export interface User {
@@ -118,4 +121,34 @@ export interface CreateOrderPayload {
   thana: string;
   district: string;
   items: { book: string; quantity: number; price: number }[];
+}
+
+// ✅ নতুন — Review type
+export interface ReviewUser {
+  _id: string;
+  name: string;
+}
+
+export interface Review {
+  _id: string;
+  book: string | Book;
+  user: ReviewUser | string;
+  rating: number;
+  comment: string;
+  helpful?: number;
+  isApproved?: boolean;
+  createdAt: string;
+}
+
+export interface ReviewQueryParams {
+  rating?: number;
+  sortBy?: "newest" | "oldest" | "rating_asc" | "rating_desc" | "helpful_asc" | "helpful_desc";
+  page?: number;
+  limit?: number;
+}
+
+export interface CreateReviewPayload {
+  book: string;
+  rating: number;
+  comment: string;
 }

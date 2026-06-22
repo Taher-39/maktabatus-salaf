@@ -6,7 +6,10 @@ import type {
   BookQueryParams,
   Category,
   CreateOrderPayload,
+  CreateReviewPayload,
   Order,
+  Review,
+  ReviewQueryParams,
   User,
 } from "./types";
 
@@ -106,12 +109,29 @@ export async function getOrderById(id: string) {
 
 export async function getVideos(limit: number = 6) {
   try {
-    const { data } = await api.get<ApiResponse<any[]>>("/videos", { 
-      params: { limit } 
+    const { data } = await api.get<ApiResponse<any[]>>("/videos", {
+      params: { limit },
     });
     return data;
   } catch (error) {
     console.error("Failed to fetch videos:", error);
     return { success: false, data: [] };
   }
+}
+
+// ─── Reviews ──────────────────────────────────────────────────────────────────
+
+// একটা নির্দিষ্ট বইয়ের রিভিউ (pagination সহ)
+export async function getBookReviews(bookId: string, params?: ReviewQueryParams) {
+  const { data } = await api.get<ApiResponse<Review[]>>(
+    `/reviews/book/${bookId}`,
+    { params }
+  );
+  return data;
+}
+
+// রিভিউ তৈরি — logged-in user only (token interceptor automatically attach করবে)
+export async function createReview(payload: CreateReviewPayload) {
+  const { data } = await api.post<ApiResponse<Review>>("/reviews", payload);
+  return data;
 }

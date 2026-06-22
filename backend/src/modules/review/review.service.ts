@@ -77,7 +77,7 @@ export const getBookReviews = async (bookId: string, query: ReviewQuery) => {
 export const getReviewById = async (id: string) => {
   const review = await Review.findById(id)
     .populate("book", "title")
-    .populate("user", "name email");
+    .populate("user", "name");
 
   if (!review) throw new AppError("রিভিউ খুঁজে পাওয়া যায়নি", 404);
   return review;

@@ -10,10 +10,13 @@ export interface IBook extends Document {
   price: number;
   stock: number;
   coverImage: string;
-  previewPages: string[];
+  previewPdf: string;
   soldCount: number;
   viewCount: number;
   isActive: boolean;
+  bookPage: number;
+  edition: number;
+  weight: number;
 }
 
 const bookSchema = new Schema<IBook>(
@@ -27,10 +30,13 @@ const bookSchema = new Schema<IBook>(
     price:       { type: Number, required: true, min: 0 },
     stock:       { type: Number, default: 0, min: 0 },
     coverImage:  { type: String, default: "" },
-    previewPages:{ type: [String], validate: [(v: string[]) => v.length <= 7, "সর্বোচ্চ ৭ পেজ"] },
+    previewPdf:  { type: String, default: "" },
     soldCount:   { type: Number, default: 0 },
     viewCount:   { type: Number, default: 0 },
     isActive:    { type: Boolean, default: true },
+    bookPage:    { type: Number, default: 0 },
+    edition:     { type: Number, default: 1 },
+    weight:      { type: Number, required: true, default: 0 },
   },
   { timestamps: true }
 );
