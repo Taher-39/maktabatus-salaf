@@ -83,8 +83,8 @@ export default function DashboardLayout({
       icon: <FiBook className="w-5 h-5" />,
     },
     {
-      href: "/dashboard/settings",
-      label: "Settings",
+      href: "/profile/change-password",
+      label: "Change Password",
       icon: <FiSettings className="w-5 h-5" />,
     },
   ];
@@ -197,11 +197,11 @@ export default function DashboardLayout({
                     Profile
                   </Link>
                   <Link
-                    href="/dashboard/settings"
+                    href="/profile/change-password"
                     onClick={() => setProfileDropdown(false)}
                     className="block px-4 py-2 text-gray-900 dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
                   >
-                    Settings
+                    Change Password
                   </Link>
                   <button
                     onClick={() => {

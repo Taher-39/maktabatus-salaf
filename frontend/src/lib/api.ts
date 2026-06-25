@@ -1,6 +1,7 @@
 import axios from "axios";
 import type {
   ApiResponse,
+  Author,
   AuthResponse,
   Book,
   BookQueryParams,
@@ -31,6 +32,21 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+export async function socialLogin(idToken: string) {
+  const { data } = await api.post<ApiResponse<any>>("/auth/social-login", { idToken });
+  return data;
+}
+
+export async function getAuthors(params?: any) {
+  const { data } = await api.get<ApiResponse<Author[]>>("/authors", { params });
+  return data;
+}
+
+export async function getAuthorBySlug(slug: string) {
+  const { data } = await api.get<ApiResponse<Author>>(`/authors/${slug}`);
+  return data;
+}
+
 export async function getBooks(params?: BookQueryParams) {
   const { data } = await api.get<ApiResponse<Book[]>>("/books", { params });
   return data;
@@ -51,29 +67,53 @@ export async function getBookBySlug(slug: string) {
   return data;
 }
 
+export async function getAuthorBooksById(id: string) {
+  const { data } = await api.get<ApiResponse<Book[]>>(`/books/authors/${id}`);
+  return data;
+}
+
 export async function getCategories() {
   const { data } = await api.get<ApiResponse<Category[]>>("/categories");
   return data;
 }
 
-export async function login(phone: string, password: string) {
+// ─── Auth ───────────────────────────────────────────────────────────────────── 
+
+export async function login(email: string, password: string) {
   const { data } = await api.post<ApiResponse<AuthResponse>>("/auth/login", {
-    phone,
+    email, 
     password,
   });
   return data;
 }
 
+export async function sendOtp(email: string, name: string) {
+  const { data } = await api.post<ApiResponse<any>>("/auth/send-otp", { email, name });
+  return data;
+}
+
 export async function register(payload: {
-  idToken: string;
+  email: string;
   name: string;
   password: string;
-  address?: { village?: string; thana?: string; district?: string };
+  otp: string; 
 }) {
-  const { data } = await api.post<ApiResponse<AuthResponse>>(
-    "/auth/verify-otp",
-    payload
-  );
+  const { data } = await api.post<ApiResponse<AuthResponse>>("/auth/verify-otp", payload);
+  return data;
+}
+
+export async function forgotPassword(email: string) {
+  const { data } = await api.post("/auth/forgot-password", { email });
+  return data;
+}
+
+export async function resetPassword(payload: { email: string; otp: string; newPassword: string }) {
+  const { data } = await api.post("/auth/reset-password", payload);
+  return data;
+}
+
+export async function changePassword(payload: { oldPassword: string; newPassword: string }) {
+  const { data } = await api.post("/auth/change-password", payload);
   return data;
 }
 
@@ -86,6 +126,9 @@ export async function logout() {
   const { data } = await api.post<ApiResponse<null>>("/auth/logout");
   return data;
 }
+
+
+// ─── Orders ───────────────────────────────────────────────────────────────────
 
 export async function createOrder(payload: CreateOrderPayload) {
   const { data } = await api.post<ApiResponse<Order>>("/orders", payload);
@@ -121,7 +164,6 @@ export async function getVideos(limit: number = 6) {
 
 // ─── Reviews ──────────────────────────────────────────────────────────────────
 
-// একটা নির্দিষ্ট বইয়ের রিভিউ (pagination সহ)
 export async function getBookReviews(bookId: string, params?: ReviewQueryParams) {
   const { data } = await api.get<ApiResponse<Review[]>>(
     `/reviews/book/${bookId}`,

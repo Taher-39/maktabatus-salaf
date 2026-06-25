@@ -236,9 +236,9 @@ export default function BookDetailsPage() {
           </h1>
 
           {/* Feature 2: Author → clickable */}
-          {authorName && authorId && (
+          {authorDetails && (
             <Link
-              href={`/books?author=${authorId}`}
+              href={`/authors/${authorDetails.slug}`}
               className="mt-2 inline-block text-gray-600 transition hover:text-emerald-700 hover:underline"
             >
               লেখক: {authorName}
@@ -246,12 +246,12 @@ export default function BookDetailsPage() {
           )}
 
           {/* Feature 2: Category → clickable */}
-          {categoryName && categoryId && (
+          {categoryId && (
             <Link
-              href={`/books?category=${categoryId}`}
+              href={`/categories/${categoryId}`}
               className="block text-sm text-gray-500 transition hover:text-emerald-700 hover:underline"
             >
-              ক্যাটাগরি: {categoryName}
+              ক্যাটাগরি: {typeof book.category === "object" ? book.category.name : "ক্যাটাগরি"}
             </Link>
           )}
 

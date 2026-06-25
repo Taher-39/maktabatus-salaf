@@ -6,6 +6,7 @@ import {
   getAllBooks, getBookBySlug, getPopularBooks,
   getNewBooks, getBooksByPublisher, createBook,
   updateBook, deleteBook,
+  getBooksByAuthor,
 } from "./book.service";
 
 export const getAllBooksHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -48,19 +49,29 @@ export const getBooksByPublisherHandler = async (req: Request, res: Response, ne
   } catch (err) { next(err); }
 };
 
+export const getBooksByAuthorHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const books = await getBooksByAuthor((req.params.id as unknown) as string);
+    sendResponse(res, 200, "সফল", books);
+  } catch (err) { next(err); }
+};
+
 export const createBookHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const parsed = createBookSchema.safeParse({
       ...req.body,
-      price: Number(req.body.price),
-      stock: Number(req.body.stock),
+      price: req.body.price ? Number(req.body.price) : undefined,
+      stock: req.body.stock ? Number(req.body.stock) : undefined,
+      bookPage: req.body.bookPage ? Number(req.body.bookPage) : undefined,
+      edition: req.body.edition ? Number(req.body.edition) : undefined,
+      weight: req.body.weight ? Number(req.body.weight) : undefined,
     });
     if (!parsed.success) throw new AppError(parsed.error.message, 400);
 
     const coverImage = (req.files as any)?.coverImage?.[0]?.path;
-    const previewPages = ((req.files as any)?.previewPages || []).map((f: any) => f.path);
+    const previewPdf = (req.files as any)?.previewPdf?.[0]?.path;
 
-    const book = await createBook(parsed.data, coverImage, previewPages);
+    const book = await createBook(parsed.data, coverImage, previewPdf);
     sendResponse(res, 201, "বই সফলভাবে যোগ করা হয়েছে", book);
   } catch (err) { next(err); }
 };
@@ -69,13 +80,17 @@ export const updateBookHandler = async (req: Request, res: Response, next: NextF
   try {
     const parsed = updateBookSchema.safeParse({
       ...req.body,
-      ...(req.body.price && { price: Number(req.body.price) }),
-      ...(req.body.stock && { stock: Number(req.body.stock) }),
+      ...(req.body.price !== undefined && { price: Number(req.body.price) }),
+      ...(req.body.stock !== undefined && { stock: Number(req.body.stock) }),
+      ...(req.body.bookPage !== undefined && { bookPage: Number(req.body.bookPage) }),
+      ...(req.body.edition !== undefined && { edition: Number(req.body.edition) }),
+      ...(req.body.weight !== undefined && { weight: Number(req.body.weight) }),
     });
     if (!parsed.success) throw new AppError(parsed.error.message, 400);
 
     const coverImage = (req.files as any)?.coverImage?.[0]?.path;
-    const book = await updateBook((req.params.id as unknown) as string, parsed.data, coverImage);
+    const previewPdf = (req.files as any)?.previewPdf?.[0]?.path;
+    const book = await updateBook((req.params.id as unknown) as string, parsed.data, coverImage, previewPdf);
     sendResponse(res, 200, "বই আপডেট হয়েছে", book);
   } catch (err) { next(err); }
 };

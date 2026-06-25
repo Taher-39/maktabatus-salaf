@@ -1,27 +1,37 @@
 import { z } from "zod";
 
-export const registerSchema = z.object({
-  idToken: z.string().min(1, "Firebase token দিন"),
-  name: z.string().min(2, "নাম কমপক্ষে ২ অক্ষর হতে হবে"),
-  password: z.string().min(6, "পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে"),
-  address: z
-    .object({
-      village: z.string().optional().default(""),
-      thana: z.string().optional().default(""),
-      district: z.string().optional().default(""),
-    })
-    .optional()
+export const sendOtpSchema = z.object({
+  name: z.string().min(2, "নাম কমপক্ষে ২ অক্ষরের হতে হবে"),
+  email: z.string().email("সঠিক ইমেইল অ্যাড্রেস দিন"),
+});
+
+export const verifyOtpSchema = z.object({
+  name: z.string().min(2, "নাম কমপক্ষে ২ অক্ষরের হতে হবে"),
+  email: z.string().email("সঠিক ইমেইল অ্যাড্রেস দিন"),
+  password: z.string().min(6, "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে"),
+  otp: z.string().length(6, "ওটিপি অবশ্যই ৬ ডিজিটের হতে হবে"),
 });
 
 export const loginSchema = z.object({
-  phone: z
-    .string()
-    .min(10, "সঠিক ফোন নম্বর দিন")
-    .regex(/^\d{10,15}$/, "শুধুমাত্র সংখ্যা এবং ১০-১৫ ডিজিট দিন"),
+  email: z.string().email("সঠিক ইমেইল অ্যাড্রেস দিন"),
   password: z.string().min(1, "পাসওয়ার্ড দিন"),
 });
 
 export const forgotPasswordSchema = z.object({
+  email: z.string().email("সঠিক ইমেইল অ্যাড্রেস দিন"),
+});
+
+export const resetPasswordSchema = z.object({
+  email: z.string().email("সঠিক ইমেইল অ্যাড্রেস দিন"),
+  otp: z.string().length(6, "ওটিপি অবশ্যই ৬ ডিজিটের হতে হবে"),
+  newPassword: z.string().min(6, "পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে"),
+});
+
+export const googleLoginSchema = z.object({
   idToken: z.string().min(1, "Firebase token দিন"),
-  newPassword: z.string().min(6, "পাসওয়ার্ড কমপক্ষে ৬ অক্ষর হতে হবে"),
+});
+
+export const changePasswordSchema = z.object({
+  oldPassword: z.string().min(1, "পুরোনো পাসওয়ার্ড দিন"),
+  newPassword: z.string().min(6, "নতুন পাসওয়ার্ড কমপক্ষে ৬ অক্ষরের হতে হবে"),
 });

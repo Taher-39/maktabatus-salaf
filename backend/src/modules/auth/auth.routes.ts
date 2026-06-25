@@ -1,18 +1,24 @@
 import { Router } from "express";
 import {
-  verifyOtpAndRegister,
+  sendOtpHandler,        
+  verifyOtpAndRegister, 
   login,
+  forgotPassword,
+  resetPasswordHandler,
+  changePasswordHandler,
   getMe,
   logout,
-  forgotPassword,
 } from "./auth.controller";
 import { protect } from "../../middlewares/auth.middleware";
 
 const router = Router();
 
-router.post("/login",           login);
+router.post("/send-otp",        sendOtpHandler);         
 router.post("/verify-otp",      verifyOtpAndRegister);
+router.post("/login",           login);
 router.post("/forgot-password", forgotPassword);
+router.post("/reset-password",  resetPasswordHandler);
+router.post("/change-password", protect, changePasswordHandler);
 router.get("/me",    protect,   getMe);
 router.post("/logout", protect, logout);
 

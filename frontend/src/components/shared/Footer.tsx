@@ -10,7 +10,7 @@ export default function Footer() {
         <div>
           <div className="mb-4 flex items-center gap-3">
             <div className="relative h-12 w-12 overflow-hidden rounded-3xl border border-amber-300 bg-white">
-              <Image src="/Logo.jpg" alt="মাক্তাবাতুস সালাফ" fill className="object-cover" />
+              <Image src="/Logo.jpg" alt="মাক্তাবাতুস সালাফ" fill className="object-cover" sizes=''/>
             </div>
             <div>
               <h3 className="text-lg font-bold text-amber-400">মাক্তাবাতুস সালাফ</h3>

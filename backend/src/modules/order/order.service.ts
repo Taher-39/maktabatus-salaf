@@ -49,7 +49,7 @@ const getAllOrders = async (query: Record<string, unknown>) => {
 
   const orders = await Order.find(filter)
     .populate('items.book', 'title coverImage price')
-    .populate('customer', 'name phone')
+    .populate('user', 'name phone')
     .sort({ createdAt: -1 })
     .skip(skip)
     .limit(Number(limit));
@@ -78,7 +78,7 @@ const getMyOrders = async (userId: string) => {
 const getSingleOrder = async (id: string) => {
   const order = await Order.findById(id)
     .populate('items.book', 'title coverImage price author')
-    .populate('customer', 'name phone');
+    .populate('user', 'name phone');
 
   if (!order) {
     throw new AppError('অর্ডার পাওয়া যায়নি', 404);
@@ -91,7 +91,7 @@ const getSingleOrder = async (id: string) => {
 const getOrderByOrderId = async (orderId: string) => {
   const order = await Order.findOne({ orderId })
     .populate('items.book', 'title coverImage price')
-    .populate('customer', 'name phone');
+    .populate('user', 'name phone');
 
   if (!order) {
     throw new AppError('অর্ডার পাওয়া যায়নি', 404);

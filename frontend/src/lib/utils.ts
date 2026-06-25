@@ -1,5 +1,11 @@
+const currencyFormatter = new Intl.NumberFormat('bn-BD', {
+  style: 'currency',
+  currency: 'BDT',
+  minimumFractionDigits: 0
+});
+
 export function formatPrice(price: number): string {
-  return `৳${price.toLocaleString("bn-BD")}`;
+  return currencyFormatter.format(price);
 }
 
 export function getAuthorName(author: { name: string } | string): string {

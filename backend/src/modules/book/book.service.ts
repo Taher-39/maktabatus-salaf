@@ -90,19 +90,28 @@ export const getBooksByPublisher = async (publisherId: string, limit = 8) => {
     .limit(limit);
 };
 
-export const createBook = async (data: z.infer<typeof createBookSchema>, coverImage?: string, previewPages?: string[]) => {
+export const getBooksByAuthor = async (authorId: string, limit = 8) => {
+  return Book.find({ author: authorId, isActive: true })
+    .populate("author", "name description image")
+    .populate("category", "name")
+    .sort({ createdAt: -1 })
+    .limit(limit);
+};
+
+export const createBook = async (data: z.infer<typeof createBookSchema>, coverImage?: string, previewPdf?: string) => {
 
   const existing = await Book.findOne({ slug: data.slug });
   if (existing) throw new AppError("এই নামে বই আগেই আছে", 409);
 
-  return Book.create({ ...data, coverImage: coverImage || "", previewPages: previewPages || [] });
+  return Book.create({ ...data, coverImage: coverImage || "", previewPdf: previewPdf || "" });
 };
 
-export const updateBook = async (id: string, data: z.infer<typeof updateBookSchema>, coverImage?: string) => {
+export const updateBook = async (id: string, data: z.infer<typeof updateBookSchema>, coverImage?: string, previewPdf?: string) => {
   const book = await Book.findById(id);
   if (!book) throw new AppError("বই পাওয়া যায়নি", 404);
 
   if (coverImage) data = { ...data, coverImage } as any;
+  if (previewPdf) data = { ...data, previewPdf } as any;
   return Book.findByIdAndUpdate(id, data, { new: true, runValidators: true });
 };
 

@@ -2,102 +2,162 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { RecaptchaVerifier, signInWithPhoneNumber } from "firebase/auth";
-import { auth } from "../../../lib/firebase";
+import { useRouter } from "next/navigation";
+import { sendOtp, register } from "../../../lib/api"; 
 
 export default function RegisterPage() {
-  const [phone, setPhone] = useState("");
+  const router = useRouter(); 
+  const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmation, setConfirmation] = useState<any>(null);
-  const [code, setCode] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState(""); 
+  const [otp, setOtp] = useState("");
+  const [isOtpSent, setIsOtpSent] = useState(false);
   const [loading, setLoading] = useState(false);
   const [msg, setMsg] = useState("");
 
-  const setupRecaptcha = () => {
-    if ((window as any).recaptchaVerifier) return (window as any).recaptchaVerifier;
-    (window as any).recaptchaVerifier = new RecaptchaVerifier(
-      auth, 
-      "recaptcha-container",
-      { size: "invisible" }
-    );
-    return (window as any).recaptchaVerifier;
-  };
+  // ১ম ধাপ: ওটিপি রিকোয়েস্ট করা
+  const handleSendOtp = async () => {
+    if (!email || !name || !password || !confirmPassword) {
+      setMsg("অনুগ্রহ করে ওটিপি পাঠানোর আগে সব ঘর পূরণ করুন।");
+      return;
+    }
+    if (password !== confirmPassword) {
+      setMsg("পাসওয়ার্ড এবং কনফার্ম পাসওয়ার্ড মেলেনি!");
+      return;
+    }
 
-  const sendOtp = async () => {
     try {
       setLoading(true);
       setMsg("");
-      const verifier = setupRecaptcha();
-      const confirmationResult = await signInWithPhoneNumber(auth, phone, verifier);
-      setConfirmation(confirmationResult);
-      setMsg("OTP পাঠানো হয়েছে, কোড দিন।");
+      const res = await sendOtp(email, name);
+      if (res.success) {
+        setIsOtpSent(true);
+        setMsg("আপনার ইমেইলে একটি ৬ ডিজিটের ওটিপি পাঠানো হয়েছে!");
+      }
     } catch (err: any) {
-      setMsg(err?.message || "OTP পাঠাতে সমস্যা হয়েছে");
+      setMsg(err?.response?.data?.message || "ওটিপি পাঠাতে ব্যর্থ। সঠিক ইমেইল দিন।");
     } finally { setLoading(false); }
   };
 
-  const confirmOtpAndRegister = async () => {
-    if (!confirmation) return setMsg("OTP পাঠান প্রথমে");
+  // ২য় ধাপ: ওটিপি দিয়ে সম্পূর্ণ সাইন আপ সাবমিট
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!otp) {
+      setMsg("অনুগ্রহ করে ওটিপি কোডটি দিন।");
+      return;
+    }
+
     try {
       setLoading(true);
-      const result = await confirmation.confirm(code);
-      const idToken = await result.user.getIdToken();
+      setMsg("");
 
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/auth/verify-otp`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ idToken, name, password }),
-      });
+      const res = await register({ email, name, password, otp });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data?.message || "রেজিস্ট্রেশন ব্যর্থ");
-      setMsg("রেজিস্ট্রেশন সফল");
+      if (res.success) {
+        setMsg("রেজিস্ট্রেশন সফল হয়েছে! ২ সেকেন্ড পর লগইন পেজে নিয়ে যাওয়া হচ্ছে...");
+        setTimeout(() => { router.push("/auth/login"); }, 2000);
+      }
     } catch (err: any) {
-      setMsg(err?.message || "রেজিস্ট্রেশনে সমস্যা হয়েছে");
+      setMsg(err?.response?.data?.message || "ভুল ওটিপি কোড দিয়েছেন বা ওটিপি এক্সপায়ার হয়েছে।");
     } finally { setLoading(false); }
   };
 
   return (
-    <div className="mx-auto max-w-md p-6">
-      <h1 className="text-2xl font-bold">রেজিস্টার</h1>
+    <div className="mx-auto max-w-md p-6 my-10">
+      <h1 className="text-2xl font-bold text-center mb-6">রেজিস্টার (OTP ভেরিফিকেশন)</h1>
 
-      <div className="mt-4 flex flex-col gap-3">
-        <input value={name} onChange={e=>setName(e.target.value)} placeholder="নাম" className="border p-2 rounded" />
-        <input value={password} onChange={e=>setPassword(e.target.value)} placeholder="পাসওয়ার্ড" type="password" className="border p-2 rounded" />
-        <input value={phone} onChange={e=>setPhone(e.target.value)} placeholder="+8801700000000" className="border p-2 rounded" />
-        <div id="recaptcha-container"></div>
+      <form onSubmit={handleRegisterSubmit} className="mt-4 flex flex-col gap-3">
+        <div>
+          <label className="mb-1 block text-sm font-medium">নাম</label>
+          <input  
+            value={name}  
+            onChange={e => setName(e.target.value)}  
+            placeholder="নাম"  
+            className="w-full rounded-lg border border-emerald-200 px-4 py-2 focus:border-emerald-500 focus:outline-none"  
+            disabled={isOtpSent}
+            required  
+          />
+        </div> 
+        <div>
+          <label className="mb-1 block text-sm font-medium">ইমেইল অ্যাড্রেস</label>
+          <input  
+            value={email}  
+            onChange={e => setEmail(e.target.value)}  
+            placeholder="ইমেইল (example@gmail.com)"  
+            type="email"
+            className="w-full rounded-lg border border-emerald-200 px-4 py-2 focus:border-emerald-500 focus:outline-none"  
+            disabled={isOtpSent}
+            required  
+          />
+        </div>
+        <div>
+          <label className="mb-1 block text-sm font-medium">পাসওয়ার্ড</label>
+          <input  
+            value={password}  
+            onChange={e => setPassword(e.target.value)}  
+            placeholder="পাসওয়ার্ড"  
+            type="password"  
+            className="w-full rounded-lg border border-emerald-200 px-4 py-2 focus:border-emerald-500 focus:outline-none"  
+            disabled={isOtpSent}
+            required  
+          />
+        </div>
+        <div>
+        <label className="mb-1 block text-sm font-medium">কনফার্ম পাসওয়ার্ড</label>
+        <input  
+          value={confirmPassword}  
+          onChange={e => setConfirmPassword(e.target.value)}  
+          placeholder="কনফার্ম পাসওয়ার্ড"  
+          type="password"  
+          className="w-full rounded-lg border border-emerald-200 px-4 py-2 focus:border-emerald-500 focus:outline-none"  
+          disabled={isOtpSent}
+          required  
+        />
+        </div>
+        {/* ওটিপি বক্স কেবল মেইল পাঠানোর পর আসবে */}
+        {isOtpSent && (
+          <input  
+            value={otp}  
+            onChange={e => setOtp(e.target.value)}  
+            placeholder="৬ ডিজিটের ওটিপি কোড দিন"  
+            type="text"  
+            maxLength={6}
+            className="w-full rounded-lg border border-emerald-200 px-4 py-2 focus:border-emerald-500 focus:outline-none tracking-widest"  
+            required  
+          />
+        )}
 
-        {!confirmation ? (
+        {/* বাটন কন্ডিশনাল রেন্ডারিং */}
+        {!isOtpSent ? (
           <button
             type="button"
-            onClick={sendOtp}
+            onClick={handleSendOtp}
+            disabled={loading}
+            className="w-full rounded-lg bg-emerald-600 py-3 font-semibold text-white hover:bg-emerald-700 disabled:opacity-50"
+          >
+            {loading ? "ওটিপি পাঠানো হচ্ছে..." : "ইমেইলে ওটিপি পাঠান"}
+          </button>
+        ) : (
+          <button
+            type="submit"
             disabled={loading}
             className="w-full rounded-lg bg-emerald-700 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
           >
-            OTP পাঠান
+            {loading ? "ভেরিফাই হচ্ছে..." : "কোড ভেরিফাই ও রেজিস্টার করুন"}
           </button>
-        ) : (
-          <>
-            <input value={code} onChange={e=>setCode(e.target.value)} placeholder="OTP কোড" className="border p-2 rounded" />
-            <button
-              type="button"
-              onClick={confirmOtpAndRegister}
-              disabled={loading}
-              className="w-full rounded-lg bg-emerald-700 py-3 font-semibold text-white hover:bg-emerald-800 disabled:opacity-50"
-            >
-              রেজিস্টার
-            </button>
-          </>
         )}
 
-        {msg && <p className="text-sm text-red-600">{msg}</p>}
+        {msg && (
+          <p className={`text-sm mt-2 p-2 rounded text-center ${msg.includes("সফল") || msg.includes("পাঠানো") ? "bg-green-50 text-green-600 border border-green-200" : "bg-red-50 text-red-600 border border-red-200"}`}>
+            {msg}
+          </p>
+        )}
 
-        <p className="mt-4 text-sm text-gray-600">
+        <p className="mt-4 text-center text-sm text-gray-600">
           ইতিমধ্যে অ্যাকাউন্ট আছে? <Link href="/auth/login" className="text-emerald-700 hover:underline">লগইন করুন</Link>
         </p>
-      </div>
+      </form>
     </div>
   );
 }

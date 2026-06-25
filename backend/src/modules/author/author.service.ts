@@ -35,14 +35,21 @@ export const getAllAuthors = async (query: AuthorQuery) => {
 
 export const getAuthorById = async (id: string) => {
   const author = await Author.findById(id);
-  if (!author) throw new AppError("à¦²à§‡à¦–à¦• à¦ªà¦¾à¦“à¦¯à¦¼à¦¾ à¦¯à¦¾à¦¯à¦¼à¦¨à¦¿", 404);
+  if (!author) throw new AppError("Author not found", 404);
+  return author;
+};
+
+export const getAuthorBySlug = async (slug: string) => {
+  console.log("Fetching author by slug:", slug); 
+  const author = await Author.findOne({slug});
+  if (!author) throw new AppError("Author not found", 404);
   return author;
 };
 
 export const createAuthor = async (data: z.infer<typeof authorSchema>, image?: string) => {
   const slug = data.slug?.trim() || makeSlug(data.name);
   const existing = await Author.findOne({ slug });
-  if (existing) throw new AppError("à¦à¦‡ à¦¨à¦¾à¦®à§‡ à¦²à§‡à¦–à¦• à¦†à¦—à§‡à¦‡ à¦†à¦›à§‡", 409);
+  if (existing) throw new AppError("Error comes when try to create author", 409);
   return Author.create({ ...data, slug, image: image || "" });
 };
 
@@ -52,7 +59,7 @@ export const updateAuthor = async (
   image?: string
 ) => {
   const author = await Author.findById(id);
-  if (!author) throw new AppError("à¦²à§‡à¦–à¦• à¦ªà¦¾à¦“à¦¯à¦¼à¦¾ à¦¯à¦¾à¦¯à¦¼à¦¨à¦¿", 404);
+  if (!author) throw new AppError("Author not found", 404);
 
   const updateData: any = { ...data };
   if (image) updateData.image = image;
@@ -67,7 +74,7 @@ export const updateAuthor = async (
 
   if (updateData.slug) {
     const existing = await Author.findOne({ slug: updateData.slug, _id: { $ne: id } });
-    if (existing) throw new AppError("à¦à¦‡ à¦¨à¦¾à¦®à§‡ à¦²à§‡à¦–à¦• à¦†à¦—à§‡à¦‡ à¦†à¦›à§‡", 409);
+    if (existing) throw new AppError("Error comes when try to update author", 409);
   }
 
   return Author.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
@@ -75,7 +82,7 @@ export const updateAuthor = async (
 
 export const deleteAuthor = async (id: string) => {
   const author = await Author.findById(id);
-  if (!author) throw new AppError("à¦²à§‡à¦–à¦• à¦ªà¦¾à¦“à¦¯à¦¼à¦¾ à¦¯à¦¾à¦¯à¦¼à¦¨à¦¿", 404);
+  if (!author) throw new AppError("Author not found", 404);
   await Author.findByIdAndDelete(id);
 };
 

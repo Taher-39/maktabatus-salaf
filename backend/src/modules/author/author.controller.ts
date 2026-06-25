@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { sendResponse } from "../../utils/sendResponse";
 import { AppError } from "../../middlewares/errorHandler";
 import { authorSchema, authorQuerySchema, updateAuthorSchema } from "./author.validation";
-import { getAllAuthors, getAuthorById, createAuthor, updateAuthor, deleteAuthor } from "./author.service";
+import { getAllAuthors, getAuthorById, createAuthor, updateAuthor, deleteAuthor, getAuthorBySlug } from "./author.service";
 
 export const getAllAuthorsHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -20,6 +20,13 @@ export const getAllAuthorsHandler = async (req: Request, res: Response, next: Ne
 export const getAuthorByIdHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const author = await getAuthorById((req.params.id as unknown) as string);
+    sendResponse(res, 200, "সফল", author);
+  } catch (err) { next(err); }
+};
+
+export const getAuthorBySlugHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const author = await getAuthorBySlug((req.params.slug as unknown) as string);
     sendResponse(res, 200, "সফল", author);
   } catch (err) { next(err); }
 };

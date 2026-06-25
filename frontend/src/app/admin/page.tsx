@@ -29,40 +29,55 @@ export default function AdminOverviewPage() {
   });
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user) {
-      router.push("/auth/login");
-      return;
+useEffect(() => {
+  if (!user) {
+    router.push("/auth/login");
+    return;
+  }
+  if (user.role !== "admin") {
+    router.push("/profile");
+    return;
+  }
+
+  const fetchStats = async () => {
+    try {
+      // Promise.all এর বদলে Promise.allSettled ব্যবহার করা হয়েছে
+      const results = await Promise.allSettled([
+        api.get("/books?limit=1"),
+        api.get("/authors?limit=1"),
+        api.get("/users?limit=1"),
+        api.get("/orders?limit=1"),
+      ]);
+
+      // প্রতিটি রেসপন্স সফল হয়েছে কিনা চেক করে ডেটা নেওয়া
+      const booksRes = results[0].status === "fulfilled" ? results[0].value : null;
+      const authorsRes = results[1].status === "fulfilled" ? results[1].value : null;
+      const usersRes = results[2].status === "fulfilled" ? results[2].value : null;
+      const ordersRes = results[3].status === "fulfilled" ? results[3].value : null;
+
+      // যদি কোনো এপিআই ফেইল করে তবে কনসোলে নির্দিষ্ট করে এরর দেখাবে
+      results.forEach((result, index) => {
+        if (result.status === "rejected") {
+          const endpoints = ["/books", "/authors", "/users", "/orders"];
+          console.error(`Failed to fetch from ${endpoints[index]}:`, result.reason);
+        }
+      });
+
+      setStats({
+        totalBooks: booksRes?.data?.meta?.total || 0,
+        totalAuthors: authorsRes?.data?.meta?.total || 0,
+        totalUsers: usersRes?.data?.meta?.total || 0,
+        totalOrders: ordersRes?.data?.meta?.total || 0,
+      });
+    } catch (error) {
+      console.error("Failed to fetch stats:", error);
+    } finally {
+      setLoading(false);
     }
-    if (user.role !== "admin") {
-      router.push("/profile");
-      return;
-    }
+  };
 
-    const fetchStats = async () => {
-      try {
-        const [booksRes, authorsRes, usersRes, ordersRes] = await Promise.all([
-          api.get("/books?limit=1"),
-          api.get("/authors?limit=1"),
-          api.get("/users?limit=1"),
-          api.get("/orders?limit=1"),
-        ]);
-
-        setStats({
-          totalBooks: booksRes.data?.meta?.total || 0,
-          totalAuthors: authorsRes.data?.meta?.total || 0,
-          totalUsers: usersRes.data?.meta?.total || 0,
-          totalOrders: ordersRes.data?.meta?.total || 0,
-        });
-      } catch (error) {
-        console.error("Failed to fetch stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
-  }, [user, router]);
+  fetchStats();
+}, [user, router]);
 
   if (!user || user.role !== "admin") return null;
 

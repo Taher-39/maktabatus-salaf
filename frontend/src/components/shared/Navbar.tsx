@@ -13,9 +13,12 @@ import {
   FiSearch,
   FiMoon,
   FiSun,
+  FiChevronDown,
 } from "react-icons/fi";
 import { useAuthStore, useCartStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { getCategories } from "@/lib/api";
+import { Category } from "@/lib/types";
 
 const navLinks = [
   { href: "/", label: "হোম" },
@@ -28,6 +31,8 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">("light");
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [catMenuOpen, setCatMenuOpen] = useState(false);
   const { user } = useAuthStore();
   const cartCount = useCartStore((s) => s.totalItems());
   const links = user?.role === "admin"
@@ -35,6 +40,7 @@ export default function Navbar() {
     : navLinks;
 
   useEffect(() => {
+    getCategories().then((res) => setCategories(res.data));
     const storedTheme = window.localStorage.getItem("theme") as "light" | "dark" | null;
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
     const initialTheme = storedTheme || (prefersDark ? "dark" : "light");
@@ -55,7 +61,15 @@ export default function Navbar() {
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
         <Link href="/" className="flex items-center gap-2">
           <div className="relative h-11 w-11 overflow-hidden rounded-2xl border border-amber-300 bg-white">
-            <Image src="/Logo.jpg" alt="মাক্তাবাতুস সালাফ" fill className="object-cover" />
+            {/* <Image src="/Logo.jpg" alt="মাক্তাবাতুস সালাফ" fill className="object-cover" sizes='' /> */}
+            <Image
+              src="/Logo.jpg"
+              alt="মাক্তাবাতুস সালাফ"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 120px, 200px" 
+              priority
+            />
           </div>
           <span className="text-lg font-bold tracking-wide">
             মাক্তাবাতুস সালাফ
@@ -75,6 +89,28 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
+          <div className="relative">
+            <button
+              onClick={() => setCatMenuOpen(!catMenuOpen)}
+              className="flex items-center gap-1 text-sm transition hover:text-amber-300"
+            >
+              ক্যাটাগরি <FiChevronDown />
+            </button>
+            {catMenuOpen && (
+              <div className="absolute top-full left-0 mt-2 w-48 bg-white text-emerald-900 rounded-lg shadow-xl p-2 z-50">
+                {categories.map((cat) => (
+                  <Link
+                    key={cat._id}
+                    href={`/books?category=${cat._id}`}
+                    onClick={() => setCatMenuOpen(false)}
+                    className="block px-4 py-2 hover:bg-emerald-100 rounded"
+                  >
+                    {cat.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
         </nav>
 
         <div className="flex items-center gap-3">

@@ -6,6 +6,8 @@ export interface IUser extends Document {
   phone: string;
   email?: string;
   password: string;
+  resetPasswordToken?: string;
+  resetPasswordExpires?: Date;
   address?: {
     village?: string;
     thana?: string;
@@ -30,8 +32,9 @@ const userSchema = new Schema<IUser>(
     },
     phone: {
       type: String,
-      required: [true, "ফোন নম্বর দিন"],
+      default: null,
       unique: true,
+      sparse: true,
       trim: true,
     },
     email: {
@@ -62,9 +65,15 @@ const userSchema = new Schema<IUser>(
     },
     firebaseUid: {
       type: String,
-      default: null,
-      unique: true,
       sparse: true,
+    },
+    resetPasswordToken: {
+      type: String,
+      default: null,
+    },
+    resetPasswordExpires: {
+      type: Date,
+      default: null,
     },
     avatar: {
       type: String,

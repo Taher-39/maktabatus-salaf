@@ -3,7 +3,7 @@ import { protect, adminOnly } from "../../middlewares/auth.middleware";
 import { upload } from "../../middlewares/upload.middleware";
 import {
   getAllBooksHandler, getBookBySlugHandler, getPopularBooksHandler,
-  getNewBooksHandler, getBooksByPublisherHandler, createBookHandler,
+  getNewBooksHandler, getBooksByPublisherHandler, getBooksByAuthorHandler, createBookHandler,
   updateBookHandler, deleteBookHandler,
 } from "./book.controller";
 
@@ -13,15 +13,17 @@ router.get("/",              getAllBooksHandler);
 router.get("/popular",       getPopularBooksHandler);
 router.get("/new",           getNewBooksHandler);
 router.get("/publisher/:id", getBooksByPublisherHandler);
+router.get("/authors/:id", getBooksByAuthorHandler);
 router.get("/:slug",         getBookBySlugHandler);
 
 router.post("/",    protect, adminOnly, upload.fields([
   { name: "coverImage", maxCount: 1 },
-  { name: "previewPages", maxCount: 7 },
+  { name: "previewPdf", maxCount: 1 },
 ]), createBookHandler);
 
 router.put("/:id",  protect, adminOnly, upload.fields([
   { name: "coverImage", maxCount: 1 },
+  { name: "previewPdf", maxCount: 1 },
 ]), updateBookHandler);
 
 router.delete("/:id", protect, adminOnly, deleteBookHandler);

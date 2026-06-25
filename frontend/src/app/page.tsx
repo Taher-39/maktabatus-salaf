@@ -2,6 +2,7 @@ import HeroBanner from "@/components/home/HeroBanner";
 import PromoBanner from "@/components/home/PromoBanner";
 import PopularBooks from "@/components/home/PopularBooks";
 import NewBooks from "@/components/home/NewBooks";
+import AuthorsCarousel from "@/components/home/AuthorsCarousel";
 import Features from "@/components/home/Features";
 import Categories from "@/components/home/Categories";
 import Stats from "@/components/home/Stats";
@@ -26,6 +27,7 @@ export default function HomePage() {
         </section>
 
         <Categories />
+        <AuthorsCarousel />
         <PopularBooks />
         <NewBooks />
         <Stats />

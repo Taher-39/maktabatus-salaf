@@ -5,21 +5,99 @@ import { Order } from "../modules/order/order.model";
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER || 'your-email@gmail.com',
-    pass: process.env.EMAIL_PASSWORD || 'your-app-password'
+    user: process.env.EMAIL_USER || 'taherpust@gmail.com',
+    pass: process.env.EMAIL_PASSWORD || 'nzsr ncfq qcyb uxzt'
   }
 });
 
-// Alternative SMTP configuration
-// const transporter = nodemailer.createTransport({
-//   host: process.env.SMTP_HOST,
-//   port: parseInt(process.env.SMTP_PORT || '587'),
-//   secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-//   auth: {
-//     user: process.env.SMTP_USER,
-//     pass: process.env.SMTP_PASSWORD
-//   }
-// });
+//
+export const sendOtpEmail = async (email: string, name: string, otp: string) => {
+  try {
+    const htmlTemplate = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; rounded: 8px;">
+        <h2 style="color: #047857; text-align: center;">অ্যাকাউন্ট ভেরিফিকেশন</h2>
+        <p>প্রিয় ${name},</p>
+        <p>আপনার অ্যাকাউন্ট তৈরি করার জন্য নিচে দেওয়া ৬ ডিজিটের ওটিপি (OTP) কোডটি ব্যবহার করুন। কোডটির মেয়াদ মাত্র ৫ মিনিট।</p>
+        <div style="background: #f3f4f6; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; letter-spacing: 5px; color: #111827; margin: 20px 0; border-radius: 6px;">
+          ${otp}
+        </div>
+        <p style="color: #6b7280; font-size: 12px; text-align: center;">যদি আপনি এই রিকোয়েস্ট না করে থাকেন, তবে দয়া করে এই মেইলটি ইগনোর করুন।</p>
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+        
+        <p style="color: #999; font-size: 12px; text-align: center;">
+          মাক্তাবাতুস সালাফ - অনলাইন বুক স্টোর<br>
+          Call: 01407-021847 | Email: maktabatussalaf47@gmail.com
+          ডাংগীপাড়া, পবা, রাজশাহী , Rajshahi, Bangladesh, 6203
+          FB Page: https://www.facebook.com/MaktabatusSalaf
+        </p>
+      </div>
+    `
+    const mailOptions = {
+      from: process.env.EMAIL_USER || 'taherpust@gmail.com',
+      to: email,
+      subject: 'আপনার অ্যাকাউন্ট ভেরিফিকেশন ওটিপি (OTP)',
+      html: htmlTemplate
+    };
+
+    const result = await transporter.sendMail(mailOptions);
+    console.log('Password reset email sent:', result.messageId);
+    return result;
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    throw error;
+  }
+  
+};
+
+// Send password reset email
+export const sendPasswordResetEmail = async (
+  recipientEmail: string,
+  recipientName: string,
+  otp: string
+) => {
+  try {
+    const htmlTemplate = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; border: 1px solid #e5e7eb; padding: 25px; border-radius: 8px;">
+        <h1 style="color: #1a4d2e; text-align: center;">পাসওয়ার্ড রিসেট অনুরোধ</h1>
+        
+        <p>প্রিয় <strong>${recipientName}</strong>,</p>
+        
+        <p>আপনি আপনার পাসওয়ার্ড রিসেট করার অনুরোধ করেছেন। নিচে আপনার ৬ ডিজিটের গোপন ওটিপি (OTP) কোডটি দেওয়া হলো। কোডটির মেয়াদ মাত্র ৫ মিনিট।</p>
+        
+        <div style="background-color: #f3f4f6; padding: 15px; text-align: center; font-size: 26px; font-weight: bold; letter-spacing: 6px; color: #1a4d2e; margin: 25px 0; border-radius: 6px; border: 1px dashed #1a4d2e;">
+          ${otp}
+        </div>
+        
+        <p style="color: #666; font-size: 12px;">
+          যদি আপনি এই অনুরোধ করেননি, তবে এই ইমেইলটি উপেক্ষা করুন। আপনার পাসওয়ার্ড সুরক্ষিত থাকবে।
+        </p>
+        
+        <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
+        
+        <p style="color: #999; font-size: 12px; text-align: center; line-height: 1.6;">
+          <strong>মাক্তাবাতুস সালাফ - অনলাইন বুক স্টোর</strong><br>
+          Call: 01407-021847 | Email: maktabatussalaf47@gmail.com<br>
+          ডাংগীপাড়া, পবা, রাজশাহী , Rajshahi, Bangladesh, 6203<br>
+          FB Page: <a href="https://www.facebook.com/MaktabatusSalaf" style="color: #1a4d2e;">facebook.com/MaktabatusSalaf</a>
+        </p>
+      </div>
+    `;
+
+    const mailOptions = {
+      from: process.env.EMAIL_USER || 'taherpust@gmail.com',
+      to: recipientEmail,
+      subject: 'পাসওয়ার্ড রিসেট অনুরোধ — মাক্তাবাতুস সালাফ',
+      html: htmlTemplate
+    };
+
+    const result = await transporter.sendMail(mailOptions);
+    console.log('Password reset email sent:', result.messageId);
+    return result;
+  } catch (error) {
+    console.error('Error sending password reset email:', error);
+    throw error;
+  }
+};
 
 // Send order confirmation email
 export const sendOrderConfirmationEmail = async (
@@ -92,7 +170,7 @@ export const sendOrderConfirmationEmail = async (
         
         <p style="color: #666; font-size: 12px;">
           যদি কোন প্রশ্ন থাকে তবে আমাদের সাথে যোগাযোগ করুন: 
-          <a href="mailto:support@maktabatus-salaf.com">support@maktabatus-salaf.com</a>
+          <a href="mailto:maktabatussalaf47@gmail.com">maktabatussalaf47@gmail.com</a>
         </p>
         
         <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
@@ -107,7 +185,7 @@ export const sendOrderConfirmationEmail = async (
     `;
 
     const mailOptions = {
-      from: process.env.EMAIL_USER,
+      from: process.env.EMAIL_USER || 'taherpust@gmail.com',
       to: recipientEmail,
       subject: `অর্ডার নিশ্চিতকরণ - ${orderId}`,
       html: htmlTemplate
@@ -166,7 +244,7 @@ export const sendOrderStatusUpdateEmail = async (
         
         <p style="color: #666; font-size: 12px;">
           আপনার অ্যাকাউন্টে লগইন করে বিস্তারিত দেখুন: 
-          <a href="${process.env.FRONTEND_URL}/profile/orders">আমার অর্ডার</a>
+          <a href="${process.env.CLIENT_URL}/profile/orders">আমার অর্ডার</a>
         </p>
         
         <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
@@ -179,7 +257,7 @@ export const sendOrderStatusUpdateEmail = async (
     `;
 
     const mailOptions = {
-      from: process.env.EMAIL_USER || 'noreply@maktabatus-salaf.com',
+      from: process.env.EMAIL_USER || 'taherpust@gmail.com',
       to: recipientEmail,
       subject: `অর্ডার স্ট্যাটাস আপডেট - ${statusBangla[status] || status}`,
       html: htmlTemplate
@@ -194,135 +272,5 @@ export const sendOrderStatusUpdateEmail = async (
   }
 };
 
-// Send password reset email
-export const sendPasswordResetEmail = async (
-  recipientEmail: string,
-  recipientName: string,
-  resetToken: string
-) => {
-  try {
-    const resetLink = `${process.env.FRONTEND_URL}/auth/reset-password?token=${resetToken}`;
 
-    const htmlTemplate = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #1a4d2e;">পাসওয়ার্ড রিসেট অনুরোধ</h1>
-        
-        <p>প্রিয় ${recipientName},</p>
-        
-        <p>আপনি আপনার পাসওয়ার্ড রিসেট করার অনুরোধ করেছেন। নিচের লিঙ্কে ক্লিক করুন নতুন পাসওয়ার্ড সেট করতে।</p>
-        
-        <div style="margin: 30px 0;">
-          <a href="${resetLink}" style="background-color: #1a4d2e; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">
-            পাসওয়ার্ড রিসেট করুন
-          </a>
-        </div>
-        
-        <p style="font-size: 12px; color: #666;">
-          অথবা এই লিঙ্ক কপি করুন: <br>
-          <code style="background-color: #f0f0f0; padding: 8px; display: block; margin-top: 10px;">
-            ${resetLink}
-          </code>
-        </p>
-        
-        <p style="color: #d32f2f; font-size: 12px;">
-          <strong>নোট:</strong> এই লিঙ্কটি মাত্র ২৪ ঘন্টার জন্য বৈধ।
-        </p>
-        
-        <p style="color: #666; font-size: 12px;">
-          যদি আপনি এই অনুরোধ করেননি, তবে এই ইমেইলটি উপেক্ষা করুন।
-        </p>
-        
-        <hr style="margin: 20px 0; border: none; border-top: 1px solid #ddd;">
-        
-        <p style="color: #999; font-size: 12px; text-align: center;">
-          মাক্তাবাতুস সালাফ - অনলাইন বুক স্টোর<br>
-          Call: 01407-021847 | Email: maktabatussalaf47@gmail.com
-        </p>
-      </div>
-    `;
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER || 'noreply@maktabatus-salaf.com',
-      to: recipientEmail,
-      subject: 'পাসওয়ার্ড রিসেট অনুরোধ',
-      html: htmlTemplate
-    };
-
-    const result = await transporter.sendMail(mailOptions);
-    console.log('Password reset email sent:', result.messageId);
-    return result;
-  } catch (error) {
-    console.error('Error sending password reset email:', error);
-    throw error;
-  }
-};
-
-// Send review notification to admin
-export const sendReviewNotificationEmail = async (
-  adminEmail: string,
-  reviewerName: string,
-  bookTitle: string,
-  rating: number,
-  comment: string
-) => {
-  try {
-    const htmlTemplate = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #1a4d2e;">নতুন রিভিউ আসেছে</h1>
-        
-        <p>একজন গ্রাহক নতুন রিভিউ লিখেছেন:</p>
-        
-        <div style="background-color: #f5f5f5; padding: 15px; margin: 20px 0; border-radius: 5px;">
-          <p><strong>রিভিউয়ার:</strong> ${reviewerName}</p>
-          <p><strong>বই:</strong> ${bookTitle}</p>
-          <p><strong>রেটিং:</strong> ${'⭐'.repeat(rating)} (${rating}/5)</p>
-          <p><strong>মন্তব্য:</strong> ${comment}</p>
-        </div>
-        
-        <p style="color: #666; font-size: 12px;">
-          রিভিউটি অনুমোদন বা প্রত্যাখ্যান করতে অ্যাডমিন প্যানেলে লগইন করুন।
-        </p>
-      </div>
-    `;
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER || 'noreply@maktabatus-salaf.com',
-      to: adminEmail,
-      subject: `নতুন রিভিউ: ${bookTitle}`,
-      html: htmlTemplate
-    };
-
-    const result = await transporter.sendMail(mailOptions);
-    console.log('Review notification email sent:', result.messageId);
-    return result;
-  } catch (error) {
-    console.error('Error sending review notification email:', error);
-    throw error;
-  }
-};
-
-// Test email configuration
-export const testEmailConfiguration = async (testEmail: string) => {
-  try {
-    const htmlTemplate = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <h1 style="color: #1a4d2e;">ইমেইল কনফিগারেশন টেস্ট</h1>
-        <p>এটি একটি টেস্ট ইমেইল। যদি এটি পান তবে আপনার ইমেইল কনফিগারেশন সঠিক আছে।</p>
-      </div>
-    `;
-
-    const mailOptions = {
-      from: process.env.EMAIL_USER || 'noreply@maktabatus-salaf.com',
-      to: testEmail,
-      subject: 'টেস্ট ইমেইল',
-      html: htmlTemplate
-    };
-
-    const result = await transporter.sendMail(mailOptions);
-    console.log('Test email sent:', result.messageId);
-    return result;
-  } catch (error) {
-    console.error('Error sending test email:', error);
-    throw error;
-  }
-};

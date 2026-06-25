@@ -27,7 +27,6 @@ export const protect = async (
 ): Promise<void> => {
   try {
     const token = req.cookies?.token || req.headers.authorization?.split(" ")[1];
-
     if (!token) throw new AppError("অনুমতি নেই — login করুন", 401);
 
     const decoded = jwt.verify(token, env.JWT_SECRET) as JwtPayload;
