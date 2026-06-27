@@ -7,14 +7,7 @@ const storage = new CloudinaryStorage({
   params: async (req, file) => {
     let folder = "maktabatus-salaf/misc";
 
-    // ১. পিডিএফ ফাইলের জন্য কন্ডিশন (নতুন যুক্ত করা previewPdf)
-    if (file.fieldname === "previewPdf") {
-      return {
-        folder: "maktabatus-salaf/previews",
-        resource_type: "raw", // পিডিএফ এর জন্য অবশ্যই raw হতে হবে
-        format: "pdf",
-      };
-    }
+
 
     // ২. অন্যান্য ইমেজ বা ছবির ফাইলের জন্য ফোল্ডার সিলেকশন
     if (file.fieldname === "coverImage")   folder = "maktabatus-salaf/covers";
@@ -30,10 +23,32 @@ const storage = new CloudinaryStorage({
   },
 });
 
+// export const upload = multer({
+//   storage,
+//   limits: { 
+//     // পিডিএফ ফাইলের কথা চিন্তা করে সাইজ লিমিট ২৫ মেগাবাইট (25MB) রাখা হলো
+//     fileSize: 25 * 1024 * 1024 
+//   }, 
+// });
+
 export const upload = multer({
-  storage,
-  limits: { 
-    // পিডিএফ ফাইলের কথা চিন্তা করে সাইজ লিমিট ২৫ মেগাবাইট (25MB) রাখা হলো
-    fileSize: 25 * 1024 * 1024 
-  }, 
+  storage: multer.memoryStorage(),
+  // বড় PDF সাইজের জন্য (Firebase Storage এ রাখছি, Cloudinary সমস্যা এড়াতে)
+  // 100MB পর্যন্ত allowed
+  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB
+
+  fileFilter: (_req, file, cb) => {
+    const allowed = [
+      "image/jpeg",
+      "image/jpg",
+      "image/png",
+      "image/webp",
+      "application/pdf",
+    ];
+    if (allowed.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error("শুধুমাত্র JPG, PNG, WebP ছবি এবং PDF ফাইল গ্রহণযোগ্য"));
+    }
+  },
 });

@@ -42,7 +42,7 @@ export interface Book {
   price: number;
   stock: number;
   coverImage: string;
-  previewPages?: string[];
+  previewPdf?: string;
   soldCount: number;
   viewCount: number;
   isActive: boolean;
@@ -58,12 +58,15 @@ export interface User {
   phone: string;
   email?: string;
   role: "customer" | "admin";
+  isBanned?: boolean;
+  createdAt?: string;
   address?: {
     village?: string;
     thana?: string;
     district?: string;
   };
 }
+
 
 export interface AuthResponse {
   _id: string;

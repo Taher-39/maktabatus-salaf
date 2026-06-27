@@ -34,7 +34,12 @@ router.get('/:id', protect, adminOnly, UserController.getSingleUser);
 // PATCH /api/users/:id/ban    — ban / unban toggle
 router.patch('/:id/ban', protect, adminOnly, UserController.toggleBanUser);
 
+// PATCH /api/users/:id/role   — make admin/customer
+router.patch('/:id/role', protect, adminOnly, UserController.changeUserRole);
+
 // DELETE /api/users/:id       — user delete
 router.delete('/:id', protect, adminOnly, UserController.deleteUser);
+
+
 
 export default router;

@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { FiPhone, FiMail, FiMapPin } from "react-icons/fi";
-import { FaYoutube, FaTwitter, FaInstagram, FaTiktok } from "react-icons/fa";
+import { FaYoutube, FaTwitter, FaInstagram, FaTiktok, FaFacebook } from "react-icons/fa";
 
 export default function Footer() {
   return (
@@ -70,6 +70,15 @@ export default function Footer() {
         <div>
           <h4 className="mb-3 font-semibold text-white">আমাদের অনুসরণ করুন</h4>
           <div className="flex flex-wrap gap-3">
+             <a
+              href="https://www.facebook.com/MaktabatusSalaf"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-900  transition hover:bg-red-600 hover:text-white"
+            >
+              <FaFacebook size={20} />
+            </a>
             <a
               href="https://www.youtube.com/@MaktabatusSalaf"
               target="_blank"

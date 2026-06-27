@@ -1,9 +1,26 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { getBooks } from "@/lib/api";
+
 export default function Stats() {
+  const [totalBooks, setTotalBooks] = useState(0);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getBooks({ limit: 1 })
+      .then((res) => {
+        setTotalBooks(res.meta?.total || 0);
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
   const stats = [
-    { label: "মোট বই", value: "1,842" },
-    { label: "সক্রিয় ব্যবহারকারী", value: "12,430" },
-    { label: "মোট অর্ডার", value: "8,214" },
-    { label: "সন্তুষ্ট গ্রাহক", value: "9,900+" },
+    { label: "মোট বই", value: loading ? "..." : totalBooks.toLocaleString("bn-BD") },
+    { label: "সক্রিয় গ্রাহক", value: "৫০০০+" },
+    { label: "মোট অর্ডার", value: "৮০০০+" },
+    { label: "সন্তুষ্ট গ্রাহক", value: "৯৯%" },
   ];
 
   return (

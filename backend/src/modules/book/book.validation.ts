@@ -9,8 +9,9 @@ export const createBookSchema = z.object({
   publisher:   z.string().min(1, "প্রকাশনী নির্বাচন করুন"),
   price:       z.number().min(0, "দাম দিন"),
   stock:       z.number().min(0).default(0),
-  coverImage:  z.string().optional().default(""),
-  previewPdf:  z.string().optional().default(""),
+  coverImage:  z.string().optional(),
+  previewPdfUrl:  z.string().optional(),
+
   bookPage:        z.number().min(0).default(0),
   edition:     z.number().min(1).default(1),
   weight:      z.number().min(0).default(0),  

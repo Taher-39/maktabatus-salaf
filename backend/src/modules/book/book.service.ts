@@ -102,17 +102,30 @@ export const createBook = async (data: z.infer<typeof createBookSchema>, coverIm
 
   const existing = await Book.findOne({ slug: data.slug });
   if (existing) throw new AppError("এই নামে বই আগেই আছে", 409);
-
-  return Book.create({ ...data, coverImage: coverImage || "", previewPdf: previewPdf || "" });
+  return Book.create({
+    ...data,
+    ...(coverImage ? { coverImage } : {}),
+    ...(previewPdf ? { previewPdf } : {}),
+  });
 };
 
 export const updateBook = async (id: string, data: z.infer<typeof updateBookSchema>, coverImage?: string, previewPdf?: string) => {
   const book = await Book.findById(id);
   if (!book) throw new AppError("বই পাওয়া যায়নি", 404);
 
-  if (coverImage) data = { ...data, coverImage } as any;
-  if (previewPdf) data = { ...data, previewPdf } as any;
-  return Book.findByIdAndUpdate(id, data, { new: true, runValidators: true });
+  const updateData: Record<string, any> = {};
+
+  const fieldsToUpdate = ["title", "slug", "description", "author", "category", "publisher", "price", "stock", "bookPage", "edition", "weight"];
+  for (const field of fieldsToUpdate) {
+    if ((data as any)[field] !== undefined) {
+      updateData[field] = (data as any)[field];
+    }
+  }
+  
+  if (coverImage) updateData.coverImage = coverImage;
+  if (previewPdf) updateData.previewPdf = previewPdf;
+
+  return Book.findByIdAndUpdate(id, updateData, { new: true, runValidators: true });
 };
 
 export const deleteBook = async (id: string) => {

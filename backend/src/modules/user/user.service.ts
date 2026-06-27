@@ -132,6 +132,41 @@ const deleteUser = async (userId: string) => {
   return { message: 'ইউজার মুছে ফেলা হয়েছে' };
 };
 
+// ─── Change User Role (Admin) ────────────────────────────────────────────────
+const changeUserRole = async (userId: string, role: 'admin' | 'customer') => {
+  const user = await User.findById(userId);
+
+  if (!user) throw new AppError('ইউজার পাওয়া যায়নি', 404);
+
+  // You can ban/delete rules are handled elsewhere, but still don't allow no-op.
+
+
+  if (user.role === role) {
+    return { message: 'ইউজারের role একই আছে', role };
+  }
+
+  // Prevent turning an admin into another role if you want to keep at least one admin.
+  // (Safety check: if user to demote is an admin and it's the last admin, block.)
+  if (user.role === 'admin' && role === 'customer') {
+    const totalAdmins = await User.countDocuments({ role: 'admin' });
+    if (totalAdmins <= 1) {
+      throw new AppError('সর্বনিম্ন ১ জন অ্যাডমিন থাকা বাধ্যতামূলক', 400);
+    }
+  }
+
+  user.role = role;
+
+  // If you change role to admin, ensure user is not banned.
+  if (role === 'admin') {
+    user.isBanned = false;
+  }
+
+  await user.save();
+
+
+  return { message: 'ইউজারের role সফলভাবে পরিবর্তন হয়েছে', role };
+};
+
 export const UserService = {
   getMyProfile,
   updateProfile,
@@ -140,4 +175,6 @@ export const UserService = {
   getSingleUser,
   toggleBanUser,
   deleteUser,
+  changeUserRole,
 };
+

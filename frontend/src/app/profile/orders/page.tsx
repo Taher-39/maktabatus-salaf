@@ -8,12 +8,14 @@ import { getMyOrders } from "@/lib/api";
 import { useAuthStore } from "@/lib/store";
 import type { Order } from "@/lib/types";
 import { formatPrice } from "@/lib/utils";
+import DashboardLayout from "@/components/admin/DashboardLayout";
 
 const statusLabels: Record<string, string> = {
   pending: "অপেক্ষমান",
+  processing: 'প্রক্রিয়াধীন',
   shipped: "পাঠানো হয়েছে",
   delivered: "ডেলিভারি হয়েছে",
-  cancelled: "বাতিল",
+  cancelled: "বাতিল করা হয়েছে",
 };
 
 const paymentLabels: Record<string, string> = {
@@ -42,6 +44,7 @@ export default function MyOrdersPage() {
   if (loading) return <LoadingSpinner />;
 
   return (
+    <DashboardLayout>
     <div className="mx-auto max-w-3xl px-4 py-8">
       <h1 className="mb-6 text-2xl font-bold text-emerald-900">আমার অর্ডার</h1>
 
@@ -86,11 +89,12 @@ export default function MyOrdersPage() {
       )}
 
       <Link
-        href="/profile"
+        href="/"
         className="mt-6 inline-block text-sm text-emerald-700 hover:underline"
       >
-        ← প্রোফাইলে ফিরুন
+        ← হোমে ফিরুন
       </Link>
     </div>
+    </DashboardLayout>
   );
 }

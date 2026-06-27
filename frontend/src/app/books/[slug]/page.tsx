@@ -149,7 +149,7 @@ export default function BookDetailsPage() {
 
   // preview পাওয়া যাবে কিনা
   const hasPreview =
-    (book.previewPages && book.previewPages.length > 0) ||
+    (book.previewPdf && book.previewPdf.length > 0) ||
     !!(book as any).previewPdf;
 
   const handleAddToCart = () => {
@@ -209,7 +209,7 @@ export default function BookDetailsPage() {
             <BookGallery
               coverImage={book.coverImage}
               title={book.title}
-              previewPages={book.previewPages}
+              // previewPdf={book.previewPdf}
             />
           </div>
 
@@ -261,6 +261,25 @@ export default function BookDetailsPage() {
           <p className="mt-1 text-sm text-gray-500">
             {inStock ? `${book.stock} টি স্টকে আছে` : "স্টক শেষ"}
           </p>
+
+          {/* বইয়ের তথ্য — পৃষ্ঠা, সংস্করণ, ওজন */}
+          <div className="mt-4 flex flex-wrap gap-3">
+            {book.bookPage > 0 && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 border border-emerald-100">
+                <span>📄</span> {book.bookPage} পৃষ্ঠা
+              </span>
+            )}
+            {book.edition > 0 && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1.5 text-xs font-semibold text-amber-800 border border-amber-100">
+                <span>📖</span> {book.edition}ম সংস্করণ
+              </span>
+            )}
+            {book.weight > 0 && (
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-gray-50 px-3 py-1.5 text-xs font-semibold text-gray-700 border border-gray-200">
+                <span>⚖️</span> {book.weight} গ্রাম
+              </span>
+            )}
+          </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
             <button
@@ -316,7 +335,7 @@ export default function BookDetailsPage() {
                 {book.description ? (
                   <>
                     {/* Feature 3: ১০ লাইন clamp */}
-                    <p
+                    <div
                       ref={descRef}
                       className="leading-relaxed text-gray-700 whitespace-pre-line"
                       style={
@@ -330,8 +349,13 @@ export default function BookDetailsPage() {
                             }
                       }
                     >
-                      {book.description}
-                    </p>
+                      <div
+                      className="mt-3 text-sm text-gray-600 leading-relaxed"
+                      dangerouslySetInnerHTML={{
+                        __html: book.description,
+                      }}
+                    />
+                    </div>
 
                     {/* Feature 3: See More / See Less Button */}
                     {(isDescOverflowing || showFullDesc) && (
@@ -592,8 +616,7 @@ export default function BookDetailsPage() {
       <PreviewModal
         isOpen={showPreview}
         onClose={() => setShowPreview(false)}
-        previewPages={book.previewPages}
-        previewPdf={(book as any).previewPdf}
+        previewPdf={book.previewPdf}
         bookTitle={book.title}
       />
     </div>

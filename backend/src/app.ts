@@ -8,17 +8,17 @@ import { env } from "./config/env";
 import dns from "node:dns/promises";
 
 // Module Routes
-import authRoutes      from "./modules/auth/auth.routes";
-import bookRoutes      from "./modules/book/book.routes";
-import authorRoutes    from "./modules/author/author.routes";
-import categoryRoutes  from "./modules/category/category.routes";
+import authRoutes from "./modules/auth/auth.routes";
+import bookRoutes from "./modules/book/book.routes";
+import authorRoutes from "./modules/author/author.routes";
+import categoryRoutes from "./modules/category/category.routes";
 import publisherRoutes from "./modules/publisher/publisher.routes";
-import OrderRoutes     from "./modules/order/order.routes";
-import reviewRoutes     from "./modules/review/review.routes";
-import userRoutes      from './modules/user/user.routes';
-import videoRoutes     from "./modules/video/video.routes";
+import OrderRoutes from "./modules/order/order.routes";
+import reviewRoutes from "./modules/review/review.routes";
+import userRoutes from "./modules/user/user.routes";
+import videoRoutes from "./modules/video/video.routes";
+import blogRoutes from "./modules/blog/blog.routes";
 // import invoiceRoutes   from "./modules/invoice/invoice.routes";
-
 
 dns.setServers(["1.1.1.1", "1.0.0.1"]);
 
@@ -40,16 +40,18 @@ app.get("/", (req, res) => {
   res.json({ success: true, message: "📚 Maktabatus Salaf API valoi চলছে!" });
 });
 
-app.use("/api/v1/auth",       authRoutes);
+app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/categories", categoryRoutes);
-app.use("/api/v1/authors",    authorRoutes);
+app.use("/api/v1/authors", authorRoutes);
 app.use("/api/v1/publishers", publisherRoutes);
-app.use("/api/v1/books",      bookRoutes);
+app.use("/api/v1/books", bookRoutes);
+app.use("/api/v1/blogs", blogRoutes);
 app.use("/api/v1/orders", OrderRoutes);
 app.use("/api/v1/reviews", reviewRoutes);
-app.use('/api/v1/users', userRoutes);
-app.use('/api/v1/videos', videoRoutes);
+app.use("/api/v1/users", userRoutes);
+app.use("/api/v1/videos", videoRoutes);
 // app.use('/api/v1/invoices', invoiceRoutes);
 
 app.use(errorHandler);
 export default app;
+

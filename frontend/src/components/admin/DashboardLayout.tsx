@@ -64,6 +64,11 @@ export default function DashboardLayout({
       icon: <FiBook className="w-5 h-5" />,
     },
     {
+      href: "/admin/blogs",
+      label: "Blogs",
+      icon: <FiBarChart className="w-5 h-5" />,
+    },
+    {
       href: "/admin/orders",
       label: "Orders",
       icon: <FiBarChart className="w-5 h-5" />,

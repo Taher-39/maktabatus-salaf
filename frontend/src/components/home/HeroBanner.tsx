@@ -1,11 +1,41 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import { getActiveBanners, Banner } from "@/lib/api";
 
 export default function HeroBanner() {
+  const [banner, setBanner] = useState<Banner | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    getActiveBanners("hero")
+      .then((res) => {
+        if (res.data && res.data.length > 0) {
+          setBanner(res.data[0]);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 text-white">
+    <section
+      className="relative overflow-hidden bg-gradient-to-br from-emerald-900 via-emerald-800 to-emerald-950 text-white"
+    >
+      {/* Background image if banner has one */}
+      {banner?.image && (
+        <div className="absolute inset-0">
+          <img
+            src={banner.image}
+            alt={banner.title}
+            className="h-full w-full object-cover opacity-30"
+          />
+        </div>
+      )}
+
+      {/* Pattern overlay */}
       <div className="absolute inset-0 opacity-10">
         <div
           className="h-full w-full"
@@ -22,7 +52,9 @@ export default function HeroBanner() {
           transition={{ duration: 0.6 }}
           className="text-3xl font-bold leading-tight md:text-5xl"
         >
-          মাক্তাবাতুস সালাফ
+          {loading
+            ? "মাক্তাবাতুস সালাফ"
+            : banner?.title || "মাক্তাবাতুস সালাফ"}
         </motion.h1>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -30,8 +62,9 @@ export default function HeroBanner() {
           transition={{ duration: 0.6, delay: 0.15 }}
           className="mt-4 max-w-2xl text-base text-emerald-100 md:text-lg"
         >
-          ইসলামিক বইয়ের বিশ্বস্ত অনলাইন দোকান — কুরআন, হাদিস, আকিদা, ফিকহ
-          এবং আরও অনেক বিষয়ের বই এক জায়গায়
+          {loading
+            ? "ইসলামিক বইয়ের বিশ্বস্ত অনলাইন দোকান"
+            : banner?.description || "ইসলামিক বইয়ের বিশ্বস্ত অনলাইন দোকান — কুরআন, হাদিস, আকিদা, ফিকহ এবং আরও অনেক বিষয়ের বই এক জায়গায়"}
         </motion.p>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -40,7 +73,7 @@ export default function HeroBanner() {
           className="mt-8 flex flex-wrap justify-center gap-4"
         >
           <Link
-            href="/books"
+            href={banner?.link || "/books"}
             className="rounded-lg bg-amber-500 px-8 py-3 font-semibold text-emerald-900 transition hover:bg-amber-400"
           >
             বই দেখুন

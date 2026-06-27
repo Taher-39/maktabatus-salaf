@@ -2,7 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { sendResponse } from '../../utils/sendResponse';
 import { AppError } from '../../middlewares/errorHandler';
 import { UserService } from './user.service';
-import { updateProfileSchema, changePasswordSchema } from './user.validation';
+import { updateProfileSchema, changePasswordSchema, changeUserRoleSchema } from './user.validation';
+
 
 // ─── Get My Profile ───────────────────────────────────────────────────────────
 export const getMyProfile = async (
@@ -86,3 +87,18 @@ export const deleteUser = async (
     sendResponse(res, 200, result.message, null);
   } catch (err) { next(err); }
 };
+
+// ─── Change Role (Admin) ─────────────────────────────────────────────────────
+export const changeUserRole = async (
+  req: Request, res: Response, next: NextFunction
+): Promise<void> => {
+  try {
+    const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
+    const parsed = changeUserRoleSchema.safeParse(req.body);
+    if (!parsed.success) throw new AppError(parsed.error.message, 400);
+
+    const result = await UserService.changeUserRole(id, parsed.data.role);
+    sendResponse(res, 200, result.message, { role: result.role });
+  } catch (err) { next(err); }
+};
+

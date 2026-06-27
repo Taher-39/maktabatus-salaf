@@ -22,6 +22,8 @@ const initialFormState = {
   bookPage: "",
   weight: "",
   edition: "",
+  coverImage: "",
+  previewPdf: "",
 };
 
 export default function AdminBooksPage() {
@@ -41,6 +43,59 @@ export default function AdminBooksPage() {
   const [formData, setFormData] = useState(initialFormState);
   const [coverFile, setCoverFile] = useState<File | null>(null);
   const [previewPdf, setPreviewPdf] = useState<File | null>(null);
+  const [previewPdfUrl, setPreviewPdfUrl] = useState<string>("");
+  const [isUploadingPdf, setIsUploadingPdf] = useState(false);
+
+  const uploadPreviewPdf = async (file: File) => {
+    setIsUploadingPdf(true);
+    try {
+      if (file.type !== "application/pdf") {
+        showToast("শুধুমাত্র PDF ফাইল গ্রহণযোগ্য", "error");
+        return;
+      }
+
+      // This endpoint is implemented at: /api/uploadthing (UploadThing).
+      // It returns a URL which we will pass to backend as `previewPdfUrl`.
+      const form = new FormData();
+      form.append("pdf", file);
+
+      const res = await fetch("/api/uploadthing", {
+        method: "POST",
+        body: form,
+      });
+
+      if (!res.ok) {
+        const errText = await res.text().catch(() => "");
+        throw new Error(errText || `Upload failed: ${res.status}`);
+      }
+
+      const data = await res.json();
+
+      // UploadThing response shape can vary; handle common ones.
+      const url =
+        data?.fileUrl ||
+        data?.url ||
+        data?.data?.url ||
+        data?.data?.fileUrl ||
+        data?.[0]?.url ||
+        data?.[0]?.fileUrl;
+
+      if (!url) {
+        throw new Error("Upload succeeded but URL missing in response");
+      }
+
+      setPreviewPdfUrl(url);
+    } catch (e: any) {
+      console.error(e);
+      setPreviewPdfUrl("");
+      showToast(e?.message || "PDF আপলোড ব্যর্থ হয়েছে", "error");
+    } finally {
+      setIsUploadingPdf(false);
+    }
+  };
+
+
+
 
   useEffect(() => {
     if (!user || user.role !== "admin") {
@@ -88,6 +143,8 @@ export default function AdminBooksPage() {
         bookPage: book.bookPage?.toString() || "0",
         weight: book.weight?.toString() || "0",
         edition: book.edition?.toString() || "1",
+        coverImage: book.coverImage?.toString(),
+        previewPdf: book.previewPdf?.toString() || "",
       });
       setCoverFile(null);
       setPreviewPdf(null);
@@ -111,7 +168,7 @@ export default function AdminBooksPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.title.trim() || !formData.slug.trim() || !formData.author || !formData.category || !formData.publisher) {
+    if (!formData.title.trim() || !formData.slug.trim() || !formData.author || !formData.category || !formData.publisher || formData.price === "" || formData.weight === "") {
       showToast("Please fill in all required fields", "error");
       return;
     }
@@ -132,17 +189,14 @@ export default function AdminBooksPage() {
       payload.append("edition", formData.edition || "1");
 
       if (coverFile) payload.append("coverImage", coverFile);
-      if (previewPdf) payload.append("previewPdf", previewPdf);
+      if (previewPdfUrl) payload.append("previewPdfUrl", previewPdfUrl);
+
 
       if (editingId) {
-        await api.put(`/books/${editingId}`, payload, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await api.put(`/books/${editingId}`, payload);
         showToast("Book updated successfully", "success");
       } else {
-        await api.post("/books", payload, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        await api.post("/books", payload);
         showToast("Book created successfully", "success");
       }
 
@@ -375,6 +429,7 @@ export default function AdminBooksPage() {
                     <span className="rounded-full bg-emerald-600 px-3 py-1 text-xs font-semibold text-white">Browse</span>
                     <input
                       type="file"
+                      name="coverImage"
                       accept="image/*"
                       onChange={(e) => setCoverFile(e.target.files?.[0] || null)}
                       className="sr-only"
@@ -382,6 +437,12 @@ export default function AdminBooksPage() {
                   </label>
                   {coverFile && (
                     <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">Selected: {coverFile.name}</div>
+                  )}
+                  {!coverFile && editingId && formData.coverImage && (
+                    <div className="mt-2 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 rounded-lg bg-gray-100 dark:bg-gray-700/50 px-3 py-1.5">
+                      <span className="truncate">Existing image saved</span>
+                      <a href={formData.coverImage} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:text-emerald-700 font-medium shrink-0">View</a>
+                    </div>
                   )}
                 </div>
                 <div>
@@ -403,23 +464,56 @@ export default function AdminBooksPage() {
                       onChange={(e) => {
                         const file = e.target.files?.[0] || null;
                         setPreviewPdf(file);
+                        setPreviewPdfUrl("");
+
+                        if (file) {
+                          // Upload immediately to avoid sending multipart to backend.
+                          void uploadPreviewPdf(file);
+                        }
                       }}
                       className="sr-only"
                     />
                   </label>
 
+
                   {previewPdf && (
                     <div className="mt-2 flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 rounded-lg bg-gray-100 dark:bg-gray-700/50 px-3 py-1.5">
-                      <span className="truncate">{previewPdf.name}</span>
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="truncate">{previewPdf.name}</span>
+                        {isUploadingPdf && (
+                          <span className="shrink-0 inline-flex items-center rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5">
+                            Uploading...
+                          </span>
+                        )}
+                      </div>
                       <button
                         type="button"
-                        onClick={() => setPreviewPdf(null)}
+                        onClick={() => {
+                          setPreviewPdf(null);
+                          setPreviewPdfUrl("");
+                          setIsUploadingPdf(false);
+                        }}
                         className="text-red-500 hover:text-red-700 font-bold ml-2"
                       >
                         মুছে ফেলুন
                       </button>
                     </div>
                   )}
+
+                  {!previewPdf && editingId && formData.previewPdf && (
+                    <div className="mt-2 flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 rounded-lg bg-gray-100 dark:bg-gray-700/50 px-3 py-1.5">
+                      <span className="truncate">Existing PDF</span>
+                      <a
+                        href={formData.previewPdf}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-emerald-600 hover:text-emerald-700 font-medium shrink-0"
+                      >
+                        View
+                      </a>
+                    </div>
+                  )}
+
                 </div>
                 
                 <div className="sm:col-span-2 grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -477,11 +571,12 @@ export default function AdminBooksPage() {
                   </button>
                   <button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || isUploadingPdf}
                     className="rounded-xl bg-emerald-600 px-4 py-3 text-white hover:bg-emerald-700 disabled:opacity-50 transition"
                   >
-                    {editingId ? "Update Book" : "Create Book"}
+                    {isUploadingPdf ? "Uploading PDF..." : editingId ? "Update Book" : "Create Book"}
                   </button>
+
                 </div>
               </form>
             </div>

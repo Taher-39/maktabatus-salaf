@@ -23,6 +23,11 @@ export const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
+  
+  if (config.data instanceof FormData) {
+    delete config.headers["Content-Type"];
+  }
+  
   if (typeof window !== "undefined") {
     const token = localStorage.getItem("token");
     if (token) {
@@ -31,11 +36,6 @@ api.interceptors.request.use((config) => {
   }
   return config;
 });
-
-export async function socialLogin(idToken: string) {
-  const { data } = await api.post<ApiResponse<any>>("/auth/social-login", { idToken });
-  return data;
-}
 
 export async function getAuthors(params?: any) {
   const { data } = await api.get<ApiResponse<Author[]>>("/authors", { params });
@@ -46,6 +46,113 @@ export async function getAuthorBySlug(slug: string) {
   const { data } = await api.get<ApiResponse<Author>>(`/authors/${slug}`);
   return data;
 }
+
+// ─── Banners ────────────────────────────────────────────────────────────────────
+
+export interface Banner {
+  _id: string;
+  title: string;
+  description: string;
+  image: string;
+  link: string;
+  position: "hero" | "featured" | "promotion";
+  startDate: string;
+  endDate: string;
+  isActive: boolean;
+}
+
+export async function getActiveBanners(position?: string) {
+  const { data } = await api.get<ApiResponse<Banner[]>>("/banners/active", {
+    params: position ? { position } : undefined,
+  });
+  return data;
+}
+
+// ─── Blogs ──────────────────────────────────────────────────────────────────────
+
+export interface Blog {
+  _id: string;
+  title: string;
+  slug: string;
+  content: string;
+  excerpt?: string;
+  image?: string;
+  author: any;
+  tags: string[];
+  likes: number;
+  views: number;
+  category?: string;
+  isPublished?: boolean;
+  createdAt: string;
+}
+
+export interface BlogQueryParams {
+  search?: string;
+  category?: string;
+  author?: string;
+  status?: "published" | "draft" | "all";
+  sortBy?: "newest" | "oldest" | "views_asc" | "views_desc" | "likes_asc" | "likes_desc";
+  page?: number;
+  limit?: number;
+}
+
+export async function getBlogs(params?: BlogQueryParams) {
+  const { data } = await api.get<ApiResponse<Blog[]>>("/blogs", { params });
+  return data;
+}
+
+export async function getBlogBySlug(slug: string) {
+  const { data } = await api.get<ApiResponse<Blog>>(`/blogs/${slug}`);
+  return data;
+}
+
+export async function getBlogById(id: string) {
+  const { data } = await api.get<ApiResponse<Blog>>(`/blogs/id/${id}`);
+  return data;
+}
+
+export async function createBlog(payload: { title: string; excerpt: string; content: string; category: string; image?: string }) {
+  const { data } = await api.post<ApiResponse<Blog>>("/blogs", payload);
+  return data;
+}
+
+export async function updateBlog(id: string, payload: Partial<{ title: string; excerpt: string; content: string; category: string; image: string; isPublished: boolean }>) {
+  const { data } = await api.put<ApiResponse<Blog>>(`/blogs/${id}`, payload);
+  return data;
+}
+
+export async function deleteBlog(id: string) {
+  const { data } = await api.delete<ApiResponse<null>>(`/blogs/${id}`);
+  return data;
+}
+
+export async function likeBlog(id: string) {
+  const { data } = await api.patch<ApiResponse<Blog>>(`/blogs/${id}/like`);
+  return data;
+}
+
+// ─── Reviews (public, without auth, for testimonials) ────────────────────────────
+
+export async function getAllReviews(params?: { page?: number; limit?: number; rating?: number }) {
+  const { data } = await api.get<ApiResponse<Review[]>>("/reviews", { params });
+  return data;
+}
+
+// ─── Dashboard Stats ────────────────────────────────────────────────────────────
+
+export interface DashboardStats {
+  totalBooks: number;
+  totalOrders: number;
+  totalUsers: number;
+  totalRevenue: number;
+}
+
+export async function getDashboardStats() {
+  const { data } = await api.get<ApiResponse<DashboardStats>>("/orders/stats");
+  return data;
+}
+
+// ─── Books ─────────────────────────────────────────────────────────────────────
 
 export async function getBooks(params?: BookQueryParams) {
   const { data } = await api.get<ApiResponse<Book[]>>("/books", { params });
@@ -78,6 +185,10 @@ export async function getCategories() {
 }
 
 // ─── Auth ───────────────────────────────────────────────────────────────────── 
+export async function socialLogin(idToken: string) {
+  const { data } = await api.post<ApiResponse<any>>("/auth/social-login", { idToken });
+  return data;
+}
 
 export async function login(email: string, password: string) {
   const { data } = await api.post<ApiResponse<AuthResponse>>("/auth/login", {
@@ -127,8 +238,35 @@ export async function logout() {
   return data;
 }
 
+// ─── Users (Admin) ─────────────────────────────────────────────────────────
+export async function getUsers(params?: { page?: number; limit?: number; search?: string; isBanned?: boolean }) {
+  const { data } = await api.get<ApiResponse<User[]>>("/users", { params });
+  return data;
+}
+
+export async function getUserById(id: string) {
+  const { data } = await api.get<ApiResponse<User>>(`/users/${id}`);
+  return data;
+}
+
+export async function banToggleUser(id: string) {
+  const { data } = await api.patch<ApiResponse<any>>(`/users/${id}/ban`);
+  return data;
+}
+
+export async function deleteUser(id: string) {
+  const { data } = await api.delete<ApiResponse<null>>(`/users/${id}`);
+  return data;
+}
+
+export async function changeUserRole(id: string, role: "admin" | "customer") {
+  const { data } = await api.patch<ApiResponse<any>>(`/users/${id}/role`, { role });
+  return data;
+}
+
 
 // ─── Orders ───────────────────────────────────────────────────────────────────
+
 
 export async function createOrder(payload: CreateOrderPayload) {
   const { data } = await api.post<ApiResponse<Order>>("/orders", payload);

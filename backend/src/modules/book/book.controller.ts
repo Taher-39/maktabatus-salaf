@@ -8,6 +8,11 @@ import {
   updateBook, deleteBook,
   getBooksByAuthor,
 } from "./book.service";
+import { v2 as cloudinary } from "cloudinary";
+import { admin } from "../../config/firebase";
+import { env } from "../../config/env";
+
+
 
 export const getAllBooksHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -56,44 +61,128 @@ export const getBooksByAuthorHandler = async (req: Request, res: Response, next:
   } catch (err) { next(err); }
 };
 
-export const createBookHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+ 
+// ── Helper: Buffer → Cloudinary ───────────────────────────────────────────────
+const uploadBufferToCloudinary = (
+  buffer: Buffer,
+  folder: string,
+  resourceType: "image" | "raw" = "image"
+): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: resourceType },
+      (error, result) => {
+        if (error) {
+          console.error("Cloudinary upload error:", error.message, error.http_code);
+          return reject(new AppError("ফাইল আপলোড ব্যর্থ হয়েছে: " + error.message, 500));
+        }
+        if (!result) return reject(new AppError("Cloudinary result নেই", 500));
+        resolve(result.secure_url);
+      }
+    );
+    stream.end(buffer);
+  });
+};
+ 
+// ── File upload helper ────────────────────────────────────────────────────────
+const handleFileUploads = async (
+  files: { [fieldname: string]: Express.Multer.File[] } | undefined
+) => {
+  let coverImageUrl: string | undefined;
+
+ 
+  if (files?.coverImage?.[0]) {
+    console.log("Uploading cover image to Cloudinary...");
+    coverImageUrl = await uploadBufferToCloudinary(
+      files.coverImage[0].buffer,
+      "maktabatus-salaf/covers",
+      "image"
+    );
+    console.log("Cover image uploaded:", coverImageUrl);
+  }
+ 
+
+
+ 
+  return { coverImageUrl };
+};
+ 
+ 
+// ── Create Book ───────────────────────────────────────────────────────────────
+export const createBookHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
+    console.log("=== req.files ===", req.files);
+    console.log("=== req.body keys ===", Object.keys(req.body));
+ 
+    const { coverImage: _c, previewPdf: _p, ...body } = req.body;
+    const previewPdfUrl = req.body.previewPdfUrl as string | undefined;
+ 
     const parsed = createBookSchema.safeParse({
-      ...req.body,
-      price: req.body.price ? Number(req.body.price) : undefined,
-      stock: req.body.stock ? Number(req.body.stock) : undefined,
+
+      ...body,
+      price:    req.body.price    ? Number(req.body.price)    : undefined,
+      stock:    req.body.stock    ? Number(req.body.stock)    : undefined,
       bookPage: req.body.bookPage ? Number(req.body.bookPage) : undefined,
-      edition: req.body.edition ? Number(req.body.edition) : undefined,
-      weight: req.body.weight ? Number(req.body.weight) : undefined,
+      edition:  req.body.edition  ? Number(req.body.edition)  : undefined,
+      weight:   req.body.weight   ? Number(req.body.weight)   : undefined,
     });
-    if (!parsed.success) throw new AppError(parsed.error.message, 400);
+    if (!parsed.success) {
+      throw new AppError(parsed.error.message, 400);
+    }
+ 
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    const { coverImageUrl, previewPdfUrl } = await handleFileUploads(files);
+    const previewPdfUrlFinal = req.body.previewPdfUrl as string | undefined;
+ 
+    const book = await createBook(parsed.data, coverImageUrl, previewPdfUrlFinal);
 
-    const coverImage = (req.files as any)?.coverImage?.[0]?.path;
-    const previewPdf = (req.files as any)?.previewPdf?.[0]?.path;
-
-    const book = await createBook(parsed.data, coverImage, previewPdf);
     sendResponse(res, 201, "বই সফলভাবে যোগ করা হয়েছে", book);
-  } catch (err) { next(err); }
+  } catch (err) {
+    console.error("=== FULL ERROR ===", err);
+    next(err);
+  }
 };
-
-export const updateBookHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+ 
+// ── Update Book ───────────────────────────────────────────────────────────────
+export const updateBookHandler = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
   try {
+    console.log("=== req.files ===", req.files);
+ 
+    const { coverImage: _c, previewPdf: _p, ...body } = req.body;
+ 
     const parsed = updateBookSchema.safeParse({
-      ...req.body,
-      ...(req.body.price !== undefined && { price: Number(req.body.price) }),
-      ...(req.body.stock !== undefined && { stock: Number(req.body.stock) }),
+      ...body,
+      ...(req.body.price    !== undefined && { price:    Number(req.body.price) }),
+      ...(req.body.stock    !== undefined && { stock:    Number(req.body.stock) }),
       ...(req.body.bookPage !== undefined && { bookPage: Number(req.body.bookPage) }),
-      ...(req.body.edition !== undefined && { edition: Number(req.body.edition) }),
-      ...(req.body.weight !== undefined && { weight: Number(req.body.weight) }),
+      ...(req.body.edition  !== undefined && { edition:  Number(req.body.edition) }),
+      ...(req.body.weight   !== undefined && { weight:   Number(req.body.weight) }),
     });
-    if (!parsed.success) throw new AppError(parsed.error.message, 400);
+    if (!parsed.success) {
+      throw new AppError(parsed.error.message, 400);
+    }
+ 
+    const files = req.files as { [fieldname: string]: Express.Multer.File[] };
+    const { coverImageUrl, previewPdfUrl } = await handleFileUploads(files);
+    const previewPdfUrlFinal = req.body.previewPdfUrl as string | undefined;
+ 
+    const book = await updateBook((req.params.id as unknown) as string, parsed.data, coverImageUrl, previewPdfUrlFinal);
 
-    const coverImage = (req.files as any)?.coverImage?.[0]?.path;
-    const previewPdf = (req.files as any)?.previewPdf?.[0]?.path;
-    const book = await updateBook((req.params.id as unknown) as string, parsed.data, coverImage, previewPdf);
     sendResponse(res, 200, "বই আপডেট হয়েছে", book);
-  } catch (err) { next(err); }
+  } catch (err) {
+    console.error("=== FULL ERROR ===", err);
+    next(err);
+  }
 };
+ 
 
 export const deleteBookHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {

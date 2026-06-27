@@ -24,3 +24,9 @@ export const changePasswordSchema = z
     message: 'পাসওয়ার্ড মিলছে না',
     path: ['confirmPassword'],
   });
+
+// ─── Admin: Change User Role ────────────────────────────────────────────────
+export const changeUserRoleSchema = z.object({
+  role: z.enum(['admin', 'customer']),
+});
+
