@@ -2,5 +2,5 @@ Resources/
 /Resources 
 Resources
 
-/GEMINI.md
-/PLAN_UPLOADTHING_PDF.md
+*.md
+!README.md
