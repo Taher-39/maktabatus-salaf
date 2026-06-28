@@ -60,6 +60,11 @@ const orderSchema = new Schema(
       enum: ['pending', 'approved'],
       default: 'pending',
     },
+
+    // SSLCOMMERZ / Gateway
+    tran_id: { type: String, default: null },
+    paymentGateway: { type: String, default: null },
+    paymentGatewayData: { type: Schema.Types.Mixed, default: null },
     // Order status
     orderStatus: {
       type: String,

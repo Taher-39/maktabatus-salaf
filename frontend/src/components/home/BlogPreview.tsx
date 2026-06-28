@@ -10,7 +10,7 @@ export default function BlogPreview() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    getBlogs({ limit: 2 })
+    getBlogs({ limit: 3 })
       .then((res) => setBlogs(res.data || []))
       .catch(() => setBlogs([]))
       .finally(() => setLoading(false));
@@ -18,9 +18,23 @@ export default function BlogPreview() {
 
   // Fallback posts
   const fallbackPosts = [
-    { slug: "study-tips-for-students", title: "শিক্ষার্থীদের জন্য পড়ার কার্যকর কৌশল", excerpt: "সময় ব্যবস্থাপনা ও মনোযোগ বৃদ্ধি সম্পর্কিত গুরুত্বপূর্ণ টিপস।" },
-    { slug: "importance-of-knowledge", title: "আল্লাহর জ্ঞানের গুরুত্ব", excerpt: "ইসলামী লেখকদের প্রাঞ্জল উপস্থাপনা।" },
+    {
+      slug: "study-tips-for-students",
+      title: "শিক্ষার্থীদের জন্য পড়ার কার্যকর কৌশল",
+      excerpt: "সময় ব্যবস্থাপনা ও মনোযোগ বৃদ্ধি সম্পর্কিত গুরুত্বপূর্ণ টিপস।",
+    },
+    {
+      slug: "importance-of-knowledge",
+      title: "আল্লাহর জ্ঞানের গুরুত্ব",
+      excerpt: "ইসলামী লেখকদের প্রাঞ্জল উপস্থাপনা।",
+    },
+    {
+      slug: "building-habit-of-reading",
+      title: "নিয়মিত পড়ার অভ্যাস গড়ে তোলা",
+      excerpt: "কম সময়ে বেশি উপকার—কিভাবে পড়ার রুটিন বানাবেন।",
+    },
   ];
+
 
   const posts = loading
     ? fallbackPosts

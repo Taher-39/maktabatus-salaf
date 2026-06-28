@@ -445,7 +445,7 @@ export default function AdminBooksPage() {
                     </div>
                   )}
                 </div>
-                <div>
+                <div className="hidden sm:block">
                   <label className="block text-sm font-medium text-gray-900 dark:text-gray-100">
                     বইয়ের প্রিভিউ (PDF)
                   </label>

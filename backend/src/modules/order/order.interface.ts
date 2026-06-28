@@ -30,6 +30,7 @@ export type TOrder = {
   // Payment
   paymentProof?: string;
   paymentStatus?: TPaymentStatus;
+  paymentMethod?: 'COD' | 'SSLCOMMERZ';
   // Order
   orderStatus?: TOrderStatus;
   adminNote?: string;

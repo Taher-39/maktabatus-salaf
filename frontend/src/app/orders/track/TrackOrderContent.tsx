@@ -13,6 +13,12 @@ const statusLabels: Record<string, string> = {
   cancelled: "বাতিল",
 };
 
+const paymentLabels: Record<string, string> = {
+  pending: "পেমেন্ট অপেক্ষমান",
+  approved: "পেমেন্ট অনুমোদিত",
+};
+
+
 export default function TrackOrderContent() {
   const searchParams = useSearchParams();
   const initialId = searchParams.get("orderId") || "";
@@ -86,11 +92,19 @@ export default function TrackOrderContent() {
               </p>
             </div>
             <div className="text-right">
-              <p className="text-sm text-gray-500">স্ট্যাটাস</p>
+              <p className="text-sm text-gray-500">অর্ডার স্ট্যাটাস</p>
               <p className="font-semibold">
                 {statusLabels[order.orderStatus] || order.orderStatus}
               </p>
+
+              <div className="mt-2">
+                <p className="text-sm text-gray-500">পেমেন্ট স্ট্যাটাস</p>
+                <p className="font-semibold">
+                  {paymentLabels[order.paymentStatus] || order.paymentStatus}
+                </p>
+              </div>
             </div>
+
           </div>
 
           <div className="space-y-2 border-t pt-4">

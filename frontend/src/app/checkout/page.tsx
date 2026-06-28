@@ -6,12 +6,18 @@ import { createOrder } from "@/lib/api";
 import { useAuthStore, useCartStore } from "@/lib/store";
 import { formatPrice } from "@/lib/utils";
 
+
+
 export default function CheckoutPage() {
   const router = useRouter();
   const { user } = useAuthStore();
   const { items, totalPrice, clearCart } = useCartStore();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<"COD" | "SSLCOMMERZ">("COD");
+
+  const apiOrderIdFromResponse = (res: any) => res?.data?.orderId || res?.data?._id;
+
 
   if (items.length === 0) {
     return (
@@ -28,6 +34,7 @@ export default function CheckoutPage() {
 
     const form = new FormData(e.currentTarget);
     const payload = {
+
       name: form.get("name") as string,
       phone: form.get("phone") as string,
       email: (form.get("email") as string) || undefined,
@@ -39,15 +46,33 @@ export default function CheckoutPage() {
         quantity: i.quantity,
         price: i.book.price,
       })),
+      paymentMethod,
     };
+
 
     try {
       const res = await createOrder(payload);
+      const orderId = apiOrderIdFromResponse(res);
+
+      if (!orderId) throw new Error("Order id not found");
+
+      if (paymentMethod === "SSLCOMMERZ") {
+        // Create SSLCOMMERZ session and redirect user to gateway
+        // API returns redirectGatewayURL
+        const { createSslcommerzSession } = await import("@/lib/api");
+        const sessionRes = await createSslcommerzSession(orderId);
+        clearCart();
+        window.location.href = sessionRes.data?.redirectGatewayURL;
+        return;
+      }
+
+
+
+      // COD
       clearCart();
-      router.push(
-        `/orders/track?orderId=${res.data?.orderId || res.data?._id}`
-      );
+      router.push(`/orders/track?orderId=${orderId}`);
     } catch (err: unknown) {
+
       const msg =
         (err as { response?: { data?: { message?: string } } })?.response?.data
           ?.message || "অর্ডার ব্যর্থ হয়েছে";

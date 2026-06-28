@@ -17,6 +17,16 @@ const envSchema = z.object({
   CLOUDINARY_API_KEY: z.string(),
   CLOUDINARY_API_SECRET: z.string(),
   CLIENT_URL: z.string().default("http://localhost:3000"),
+
+  // SSLCOMMERZ
+  SSLCOMMERZ_STORE_ID: z.string().default(""),
+  SSLCOMMERZ_STORE_PASSWORD: z.string().default(""),
+  SSLCOMMERZ_BASE_URL: z.string().default("https://sandbox.sslcommerz.com"),
+  SSLCOMMERZ_SUCCESS_URL: z.string().default(""),
+  SSLCOMMERZ_FAIL_URL: z.string().default(""),
+  SSLCOMMERZ_CANCEL_URL: z.string().default(""),
+  SSLCOMMERZ_CALLBACK_URL: z.string().default(""),
+  SSLCOMMERZ_CURRENCY: z.string().default("BDT"),
 });
 
 const parsed = envSchema.safeParse(process.env);

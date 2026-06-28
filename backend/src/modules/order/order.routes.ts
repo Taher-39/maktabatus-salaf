@@ -2,6 +2,7 @@ import express from 'express';
 import { protect, adminOnly } from '../../middlewares/auth.middleware';
 import { upload } from '../../middlewares/upload.middleware';
 import * as OrderController from './order.controller';
+import { createSslcommerzSession, sslcommerzCallback } from './order.sslcommerz.controller';
 
 const router = express.Router();
 
@@ -64,5 +65,12 @@ router.delete('/:id', protect, adminOnly, OrderController.deleteOrder);
 
 // GET /api/orders/:id — single order details (customer নিজের, admin যেকোনো)
 router.get('/:id', OrderController.getSingleOrder);
+
+// SSLCOMMERZ
+// Create payment session (returns redirect URL)
+router.post('/:id/sslcommerz-session', createSslcommerzSession);
+
+// Callback/webhook URL for SSLCOMMERZ server-to-server updates
+router.post('/sslcommerz/callback', sslcommerzCallback);
 
 export default router;

@@ -46,8 +46,19 @@ export default function Footer() {
                 লগইন
               </Link>
             </li>
+            <li>
+              <Link href="/terms-and-conditions" className="hover:text-amber-400">
+                শর্তাবলী (Terms &amp; Conditions)
+              </Link>
+            </li>
+            <li>
+              <Link href="/privacy-policy" className="hover:text-amber-400">
+                গোপনীয়তা নীতি (Privacy Policy)
+              </Link>
+            </li>
           </ul>
         </div>
+
 
         <div>
           <h4 className="mb-3 font-semibold text-white">যোগাযোগ</h4>

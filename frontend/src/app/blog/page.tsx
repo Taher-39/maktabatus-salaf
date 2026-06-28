@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback, useMemo } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { FiSearch, FiClock, FiEye, FiHeart } from "react-icons/fi";
-import { getBlogs, Blog, BlogQueryParams } from "@/lib/api";
+import { FiClock, FiEye, FiHeart, FiSearch } from "react-icons/fi";
 import { debounce } from "@/lib/utils";
+import { getBlogs, Blog, BlogQueryParams } from "@/lib/api";
 
 const BLOGS_PER_PAGE = 9;
 
@@ -18,41 +18,51 @@ const SORT_OPTIONS: { value: string; label: string }[] = [
 
 export default function BlogsPage() {
   const router = useRouter();
-  const searchParams = useSearchParams();
 
-  const initialSearch = searchParams.get("search") || "";
-  const initialSortBy = searchParams.get("sortBy") || "newest";
-  const initialPage = Number(searchParams.get("page")) || 1;
-
-  const [search, setSearch] = useState(initialSearch);
-  const [sortBy, setSortBy] = useState(initialSortBy);
-  const [page, setPage] = useState(initialPage);
+  const [hydrated, setHydrated] = useState(false);
+  const [search, setSearch] = useState("");
+  const [sortBy, setSortBy] = useState<string>("newest");
+  const [page, setPage] = useState<number>(1);
 
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [totalPages, setTotalPages] = useState(1);
   const [totalBlogs, setTotalBlogs] = useState(0);
   const [loading, setLoading] = useState(true);
 
-  // Build query
-  const queryParams = useMemo<BlogQueryParams>(() => ({
-    search: search || undefined,
-    sortBy: sortBy as any,
-    page,
-    limit: BLOGS_PER_PAGE,
-  }), [search, sortBy, page]);
-
-  // Sync URL
   useEffect(() => {
+    // Avoid Next build prerender errors: do not call useSearchParams here.
+    const params = new URLSearchParams(window.location.search);
+    setSearch(params.get("search") || "");
+    setSortBy(params.get("sortBy") || "newest");
+    setPage(Number(params.get("page")) || 1);
+    setHydrated(true);
+  }, []);
+
+  const queryParams = useMemo<BlogQueryParams>(
+    () => ({
+      search: search || undefined,
+      sortBy: sortBy as any,
+      page,
+      limit: BLOGS_PER_PAGE,
+    }),
+    [search, sortBy, page]
+  );
+
+  useEffect(() => {
+    if (!hydrated) return;
+
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     if (sortBy && sortBy !== "newest") params.set("sortBy", sortBy);
     if (page > 1) params.set("page", String(page));
+
     const qs = params.toString();
     router.replace(`/blog${qs ? `?${qs}` : ""}`, { scroll: false });
-  }, [search, sortBy, page, router]);
+  }, [search, sortBy, page, router, hydrated]);
 
-  // Fetch
   useEffect(() => {
+    if (!hydrated) return;
+
     setLoading(true);
     getBlogs(queryParams)
       .then((res) => {
@@ -62,7 +72,7 @@ export default function BlogsPage() {
       })
       .catch(() => setBlogs([]))
       .finally(() => setLoading(false));
-  }, [queryParams]);
+  }, [queryParams, hydrated]);
 
   const handleSearch = debounce((value: string) => {
     setSearch(value);
@@ -71,13 +81,14 @@ export default function BlogsPage() {
 
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("bn-BD", {
-      year: "numeric", month: "long", day: "numeric",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
   };
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      {/* Header */}
       <div className="mb-8 text-center">
         <h1 className="text-3xl font-bold text-emerald-900">ব্লগ</h1>
         <p className="mt-2 text-gray-500">
@@ -85,30 +96,33 @@ export default function BlogsPage() {
         </p>
       </div>
 
-      {/* Search + Sort */}
       <div className="mb-8 flex flex-col gap-3 sm:flex-row">
         <div className="relative flex-1">
           <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
-            defaultValue={search}
+            value={search}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="ব্লগ সার্চ করুন..."
-            className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-emerald-500 focus:outline-none"
+            className="w-3/4 rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-emerald-500 focus:outline-none"
           />
         </div>
         <select
           value={sortBy}
-          onChange={(e) => { setSortBy(e.target.value); setPage(1); }}
+          onChange={(e) => {
+            setSortBy(e.target.value);
+            setPage(1);
+          }}
           className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
         >
           {SORT_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
           ))}
         </select>
       </div>
 
-      {/* Blog Grid */}
       {loading ? (
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -153,9 +167,7 @@ export default function BlogsPage() {
                   <h3 className="line-clamp-2 text-lg font-bold text-gray-900 group-hover:text-emerald-700 transition">
                     {blog.title}
                   </h3>
-                  <p className="mt-2 line-clamp-2 text-sm text-gray-600">
-                    {blog.excerpt}
-                  </p>
+                  <p className="mt-2 line-clamp-2 text-sm text-gray-600">{blog.excerpt}</p>
                   <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
                     <span className="flex items-center gap-1">
                       <FiClock size={14} />
@@ -177,7 +189,6 @@ export default function BlogsPage() {
             ))}
           </div>
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <div className="mt-10 flex items-center justify-center gap-2">
               <button
@@ -191,9 +202,7 @@ export default function BlogsPage() {
                 .filter((p) => p === 1 || p === totalPages || Math.abs(p - page) <= 2)
                 .map((p, idx, arr) => (
                   <span key={p} className="flex items-center">
-                    {idx > 0 && arr[idx - 1] !== p - 1 && (
-                      <span className="px-1 text-gray-400">...</span>
-                    )}
+                    {idx > 0 && arr[idx - 1] !== p - 1 && <span className="px-1 text-gray-400">...</span>}
                     <button
                       onClick={() => setPage(p)}
                       className={`flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium transition ${
@@ -220,3 +229,4 @@ export default function BlogsPage() {
     </div>
   );
 }
+

@@ -17,6 +17,7 @@ import {
 import { useCartStore, useAuthStore } from "@/lib/store";
 import type { Book, Review } from "@/lib/types";
 import { formatPrice, getAuthorName, getCategoryName } from "@/lib/utils";
+import { useToast } from "@/components/shared/ToastProvider";
 
 const REVIEWS_PER_PAGE = 4;
 const DESC_LINE_CLAMP = 10;
@@ -159,9 +160,12 @@ export default function BookDetailsPage() {
   };
 
   const handleBuyNow = () => {
+    if (!inStock) return;
     addItem(book);
     router.push("/checkout");
   };
+
+  const { showToast } = useToast();
 
   const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -646,7 +650,5 @@ function RelatedBookCard({ book }: { book: Book }) {
     </Link>
   );
 }
-function showToast(arg0: string, arg1: string) {
-  throw new Error("Function not implemented.");
-}
+
 

@@ -23,8 +23,10 @@ import { Category } from "@/lib/types";
 const navLinks = [
   { href: "/", label: "হোম" },
   { href: "/books", label: "সকল বই" },
+  { href: "/blog", label: "ব্লগ" },
   { href: "/orders/track", label: "অর্ডার ট্র্যাক" },
 ];
+
 
 export default function Navbar() {
   const pathname = usePathname();

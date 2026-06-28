@@ -135,7 +135,7 @@ export const createBookHandler = async (
     }
  
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    const { coverImageUrl, previewPdfUrl } = await handleFileUploads(files);
+    const { coverImageUrl } = await handleFileUploads(files);
     const previewPdfUrlFinal = req.body.previewPdfUrl as string | undefined;
  
     const book = await createBook(parsed.data, coverImageUrl, previewPdfUrlFinal);
@@ -171,7 +171,7 @@ export const updateBookHandler = async (
     }
  
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    const { coverImageUrl, previewPdfUrl } = await handleFileUploads(files);
+    const { coverImageUrl } = await handleFileUploads(files);
     const previewPdfUrlFinal = req.body.previewPdfUrl as string | undefined;
  
     const book = await updateBook((req.params.id as unknown) as string, parsed.data, coverImageUrl, previewPdfUrlFinal);

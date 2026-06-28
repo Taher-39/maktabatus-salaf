@@ -5,13 +5,14 @@ export interface IBlog extends Document {
   slug: string;
   excerpt: string;
   content: string;
-  author: mongoose.Types.ObjectId;
-  category: string;
   image: string;
+  // blog category used by frontend list/details filtering
+  category?: string;
   views: number;
   likes: number;
   isPublished: boolean;
 }
+
 
 const blogSchema = new Schema<IBlog>(
   {
@@ -19,15 +20,18 @@ const blogSchema = new Schema<IBlog>(
     slug:        { type: String, required: true, unique: true, lowercase: true },
     excerpt:     { type: String, required: true },
     content:     { type: String, required: true },
-    author:      { type: Schema.Types.ObjectId, ref: "User", required: true },
-    category:    { type: String, required: true },
     image:       { type: String, default: "" },
     views:       { type: Number, default: 0 },
     likes:       { type: Number, default: 0 },
-    isPublished: { type: Boolean, default: false },
+    // blog category used by frontend list/details filtering
+    category:    { type: String, default: "" },
+    isPublished: { type: Boolean, default: true },
   },
+
+
   { timestamps: true }
 );
+
 
 // Auto-generate slug from title
 blogSchema.pre("validate", function (next: any) {
@@ -40,5 +44,6 @@ blogSchema.pre("validate", function (next: any) {
   }
   next();
 });
+
 
 export const Blog = mongoose.model<IBlog>("Blog", blogSchema);

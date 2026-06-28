@@ -9,7 +9,7 @@ import Stats from "@/components/home/Stats";
 import Testimonials from "@/components/home/Testimonials";
 import VideoReviews from "@/components/home/VideoReviews";
 import BlogPreview from "@/components/home/BlogPreview";
-import Newsletter from "@/components/home/Newsletter";
+import ContactUs from "@/components/home/ContactUs";
 import CTA from "@/components/home/CTA";
 
 export default function HomePage() {
@@ -34,9 +34,10 @@ export default function HomePage() {
         <Testimonials />
         <VideoReviews />
         <BlogPreview />
-        <Newsletter />
+        <ContactUs />
         <CTA />
       </main>
     </>
   );
 }
+

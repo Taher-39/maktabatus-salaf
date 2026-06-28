@@ -18,6 +18,7 @@ import reviewRoutes from "./modules/review/review.routes";
 import userRoutes from "./modules/user/user.routes";
 import videoRoutes from "./modules/video/video.routes";
 import blogRoutes from "./modules/blog/blog.routes";
+import contactRoutes from "./modules/contact/contact.routes";
 // import invoiceRoutes   from "./modules/invoice/invoice.routes";
 
 dns.setServers(["1.1.1.1", "1.0.0.1"]);
@@ -50,8 +51,16 @@ app.use("/api/v1/orders", OrderRoutes);
 app.use("/api/v1/reviews", reviewRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/videos", videoRoutes);
+app.use("/api/v1/contact", contactRoutes);
 // app.use('/api/v1/invoices', invoiceRoutes);
+
 
 app.use(errorHandler);
 export default app;
+
+
+
+
+
+
 

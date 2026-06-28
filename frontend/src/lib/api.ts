@@ -77,7 +77,6 @@ export interface Blog {
   content: string;
   excerpt?: string;
   image?: string;
-  author: any;
   tags: string[];
   likes: number;
   views: number;
@@ -97,9 +96,10 @@ export interface BlogQueryParams {
 }
 
 export async function getBlogs(params?: BlogQueryParams) {
-  const { data } = await api.get<ApiResponse<Blog[]>>("/blogs", { params });
+  const { data } = await api.get<any>("/blogs", { params });
   return data;
 }
+
 
 export async function getBlogBySlug(slug: string) {
   const { data } = await api.get<ApiResponse<Blog>>(`/blogs/${slug}`);
@@ -267,11 +267,18 @@ export async function changeUserRole(id: string, role: "admin" | "customer") {
 
 // ─── Orders ───────────────────────────────────────────────────────────────────
 
-
-export async function createOrder(payload: CreateOrderPayload) {
+export async function createOrder(payload: CreateOrderPayload & { paymentMethod?: "COD" | "SSLCOMMERZ" }) {
   const { data } = await api.post<ApiResponse<Order>>("/orders", payload);
   return data;
 }
+
+export async function createSslcommerzSession(orderId: string) {
+  const { data } = await api.post<ApiResponse<{ redirectGatewayURL: string; tran_id: string }>>(
+    `/orders/${orderId}/sslcommerz-session`
+  );
+  return data;
+}
+
 
 export async function getMyOrders() {
   const { data } = await api.get<ApiResponse<Order[]>>("/orders/my-orders");

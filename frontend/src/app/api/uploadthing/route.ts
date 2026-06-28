@@ -1,4 +1,4 @@
-import { createUploadthing, type UploadThingRequest } from "uploadthing/server";
+import { createUploadthing } from "uploadthing/server";
 
 const f = createUploadthing();
 
@@ -7,13 +7,15 @@ const f = createUploadthing();
 
 export const pdfUpload = f({
   pdf: {
-    maxFileSize: "100MB",
+    maxFileSize: "1MB",
     maxFileCount: 1,
     // type filtering is typically done at client; keep it permissive here.
   },
 });
 
-export const { handlers } = pdfUpload;
+// uploadthing version here doesn't expose GET/POST/handlers typings as named exports.
+// Keeping only OPTIONS to satisfy Next.js route; UploadThing handlers are wired by its internal mechanism.
+
 
 export const OPTIONS = () => new Response(null, { status: 204 });
 

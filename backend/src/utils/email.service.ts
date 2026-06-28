@@ -10,6 +10,49 @@ const transporter = nodemailer.createTransport({
   }
 });
 
+// Send contact form email
+export const sendContactEmail = async ({
+  name,
+  email,
+  subject,
+  message,
+}: {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}) => {
+  const htmlTemplate = `
+    <div style="font-family: Arial, sans-serif; padding: 20px; max-width: 600px;">
+      <h2 style="color: #3b82f6;">New Contact Form Submission</h2>
+      <hr style="border: 1px solid #e5e7eb;">
+
+      <p><strong>Name:</strong> ${name}</p>
+      <p><strong>Email:</strong> ${email}</p>
+      <p><strong>Subject:</strong> ${subject}</p>
+
+      <h3 style="color: #3b82f6; margin-top: 20px;">Message:</h3>
+      <p style="background-color: #f3f4f6; padding: 15px; border-radius: 8px;">
+        ${message}
+      </p>
+
+      <hr style="border: 1px solid #e5e7eb; margin-top: 30px;">
+      <p style="color: #6b7280; font-size: 12px;">
+        This email was sent from your portfolio contact form.
+      </p>
+    </div>
+  `;
+
+  const mailOptions = {
+    from: process.env.EMAIL_USER || 'taherpust@gmail.com',
+    to: 'taherpust@gmail.com',
+    subject: `Portfolio Contact: ${subject}`,
+    html: htmlTemplate,
+  };
+
+  return transporter.sendMail(mailOptions);
+};
+
 //
 export const sendOtpEmail = async (email: string, name: string, otp: string) => {
   try {

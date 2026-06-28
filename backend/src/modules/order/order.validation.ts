@@ -24,7 +24,10 @@ export const createOrderSchema = z.object({
     .array(orderItemSchema)
     .min(1, 'কমপক্ষে একটি বই লাগবে'),
   paymentProof: z.string().optional(),
+
+  paymentMethod: z.enum(['COD', 'SSLCOMMERZ']).optional(),
 });
+
 
 export const updateOrderStatusSchema = z.object({
   orderStatus: z

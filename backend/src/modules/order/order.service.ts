@@ -8,16 +8,54 @@ const createOrder = async (payload: TOrder) => {
     (sum, item) => sum + item.price * item.quantity,
     0
   );
-  const shippingCharge = 40;
+
+  // Shipping charge by total weight slab
+  // weight <= 1kg => 90tk
+  // (1,2] => 110tk
+  // (2,3] => 130tk
+  // +20tk per 1kg slab afterwards.
+  // NOTE: Assumes Book.weight is in kg.
+  const itemsWithBooks = await Promise.all(
+    payload.items.map(async (it) => {
+      const book = await (await import('../book/book.model')).Book.findById(it.book).select('weight');
+      return { quantity: it.quantity, unitWeight: book?.weight ?? 0 };
+    })
+  );
+
+  const totalWeightKg = itemsWithBooks.reduce(
+    (sum, it) => sum + it.unitWeight * it.quantity,
+    0
+  );
+
+  let shippingCharge = 0;
+  if (totalWeightKg <= 1) {
+    shippingCharge = 90;
+  } else if (totalWeightKg <= 2) {
+    shippingCharge = 110;
+  } else if (totalWeightKg <= 3) {
+    shippingCharge = 130;
+  } else {
+    // Above 3kg: 20tk per additional 1kg slab
+    // Example: 3.1kg => extraKgCeil = 1 => 150tk
+    const extraKg = Math.ceil(totalWeightKg - 3);
+    shippingCharge = 130 + extraKg * 20;
+  }
+
   const grandTotal = subtotal + shippingCharge;
+
+  const paymentStatus =
+    payload?.paymentMethod === 'COD' ? 'approved' : 'pending';
 
   const order = await Order.create({
     ...payload,
+    paymentStatus,
+    orderStatus: 'pending',
     subtotal,
     shippingCharge,
     grandTotal,
     isGuest: !payload.user,
   });
+
 
   return order;
 };

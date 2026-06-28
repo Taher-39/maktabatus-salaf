@@ -1,209 +1,297 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { FiPlus, FiEdit2, FiTrash2, FiSearch, FiEye, FiClock, FiCheckCircle, FiXCircle } from "react-icons/fi";
+import Link from "next/link";
+import { FiEdit3, FiPlus, FiTrash2, FiEye, FiUsers } from "react-icons/fi";
 import DashboardLayout from "@/components/admin/DashboardLayout";
-import { getBlogs, deleteBlog, Blog, BlogQueryParams } from "@/lib/api";
-import { debounce } from "@/lib/utils";
+import BlogModal, { type BlogDraft } from "@/components/admin/BlogModal";
+import LoadingSpinner from "@/components/shared/LoadingSpinner";
+import { deleteBlog, getBlogs, likeBlog, createBlog, getBlogById, updateBlog } from "@/lib/api";
+
+export type AdminBlog = {
+  _id: string;
+  title: string;
+  slug: string;
+  excerpt?: string;
+  content?: string;
+  image?: string;
+  likes: number;
+  views: number;
+  category?: string;
+  isPublished?: boolean;
+  createdAt: string;
+};
 
 export default function AdminBlogsPage() {
   const router = useRouter();
-  const [blogs, setBlogs] = useState<Blog[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<"published" | "draft" | "all">("all");
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalBlogs, setTotalBlogs] = useState(0);
 
-  const fetchBlogs = useCallback(async () => {
+  const [loading, setLoading] = useState(true);
+  const [blogs, setBlogs] = useState<AdminBlog[]>([]);
+
+  const [tab, setTab] = useState<"published" | "draft" | "all">("published");
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<"create" | "edit">("create");
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [modalInitial, setModalInitial] = useState<Partial<BlogDraft> | undefined>(undefined);
+
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const query = useMemo(() => {
+    return {
+      status: tab === "all" ? "all" : tab,
+      sortBy: "newest" as const,
+      limit: 50,
+      page: 1,
+    };
+  }, [tab]);
+
+  const load = async () => {
     setLoading(true);
     try {
-      const params: BlogQueryParams = { page, limit: 10, status };
-      if (search) params.search = search;
-      const res = await getBlogs(params);
-      setBlogs(res.data || []);
-      setTotalPages(res.meta?.totalPages || 1);
-      setTotalBlogs(res.meta?.total || 0);
-    } catch (err) {
-      console.error("Failed to fetch blogs", err);
+      const res = await getBlogs(query as any);
+      setBlogs((res?.data || []) as any);
+    } catch {
+      setBlogs([]);
     } finally {
       setLoading(false);
     }
-  }, [page, search, status]);
+  };
 
-  useEffect(() => { fetchBlogs(); }, [fetchBlogs]);
+  useEffect(() => {
+    load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab]);
 
-  const handleSearch = debounce((value: string) => {
-    setSearch(value);
-    setPage(1);
-  }, 400);
+  const openCreate = () => {
+    setModalMode("create");
+    setEditingId(null);
+    setModalInitial({ isPublished: tab === "published" });
+    setError("");
+    setModalOpen(true);
+  };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm("আপনি কি নিশ্চিত? এই ব্লগ ডিলিট হবে।")) return;
+  const openEdit = async (id: string) => {
+    setModalMode("edit");
+    setEditingId(id);
+    setError("");
+    setSubmitting(false);
     try {
-      await deleteBlog(id);
-      fetchBlogs();
-    } catch (err) {
-      alert("ডিলিট করতে সমস্যা হয়েছে");
+      const res = await getBlogById(id);
+      const b = res.data as any;
+      setModalInitial({
+        title: b.title,
+        excerpt: b.excerpt || "",
+        content: b.content || "",
+        category: b.category || "",
+        isPublished: b.isPublished !== false,
+      });
+    } catch {
+      setModalInitial(undefined);
+    }
+    setModalOpen(true);
+  };
+
+  const handleSubmit = async (draft: BlogDraft) => {
+    if (submitting) return;
+    setSubmitting(true);
+    setError("");
+
+    try {
+      if (modalMode === "create") {
+        await createBlog({
+          title: draft.title.trim(),
+          excerpt: draft.excerpt.trim(),
+          content: draft.content,
+          category: draft.category.trim(),
+          // image omitted (backend upload handled elsewhere)
+        } as any);
+      } else {
+        if (!editingId) throw new Error("Missing blog id");
+        await updateBlog(editingId, {
+          title: draft.title.trim(),
+          excerpt: draft.excerpt.trim(),
+          content: draft.content,
+          category: draft.category.trim(),
+          isPublished: draft.isPublished,
+        } as any);
+      }
+
+      setModalOpen(false);
+      await load();
+    } catch (e: any) {
+      setError(e?.response?.data?.message || "কিছু একটা সমস্যা হয়েছে");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const getStatusBadge = (blog: Blog) => {
-    if (blog.isPublished) {
-      return <span className="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800"><FiCheckCircle size={12} /> প্রকাশিত</span>;
+  const handleDelete = async (id: string) => {
+    const ok = confirm("এই ব্লগটি ডিলিট করবেন?");
+    if (!ok) return;
+    setSubmitting(true);
+    setError("");
+    try {
+      await deleteBlog(id);
+      await load();
+    } catch (e: any) {
+      setError(e?.response?.data?.message || "ডিলিট করতে সমস্যা হয়েছে");
+    } finally {
+      setSubmitting(false);
     }
-    return <span className="inline-flex items-center gap-1 rounded-full bg-yellow-100 px-2.5 py-0.5 text-xs font-medium text-yellow-800"><FiClock size={12} /> খসড়া</span>;
   };
 
   return (
     <DashboardLayout>
-      <div className="p-4 md:p-6 max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div className="p-4 md:p-6 max-w-6xl mx-auto">
+        <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white">ব্লগ ব্যবস্থাপনা</h1>
-            <p className="text-sm text-gray-500 mt-1">মোট {totalBlogs} টি ব্লগ</p>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">ব্লগ ম্যানেজমেন্ট</h1>
+            <p className="text-sm text-gray-500">
+              Create / Edit / Delete 
+            </p>
           </div>
-          <button
-            onClick={() => router.push("/admin/blogs/create")}
-            className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-emerald-800"
-          >
-            <FiPlus size={18} /> নতুন ব্লগ
-          </button>
+
+          <div className="flex items-center gap-3">
+            <div className="hidden sm:flex items-center gap-2 text-sm text-gray-600">
+              <FiEye />
+              <span>দ্রুত কাজ</span>
+            </div>
+            <button
+              onClick={openCreate}
+              className="inline-flex items-center gap-2 rounded-lg bg-emerald-700 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-800 transition"
+            >
+              <FiPlus size={16} />
+              নতুন ব্লগ
+            </button>
+          </div>
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-6">
-          <div className="relative flex-1">
-            <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              defaultValue={search}
-              onChange={(e) => handleSearch(e.target.value)}
-              placeholder="ব্লগ সার্চ করুন..."
-              className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-emerald-500 focus:outline-none dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-            />
-          </div>
-          <select
-            value={status}
-            onChange={(e) => { setStatus(e.target.value as any); setPage(1); }}
-            className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-          >
-            <option value="all">সব স্ট্যাটাস</option>
-            <option value="published">প্রকাশিত</option>
-            <option value="draft">খসড়া</option>
-          </select>
+        {/* tabs */}
+        <div className="flex flex-wrap items-center gap-2 mb-5">
+          {(
+            [
+              { key: "published", label: "প্রকাশিত" },
+              { key: "draft", label: "ড্রাফট" },
+              { key: "all", label: "সব" },
+            ] as const
+          ).map((t) => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className={`rounded-lg border px-3 py-2 text-sm font-semibold transition ${
+                tab === t.key
+                  ? "bg-emerald-700 text-white border-emerald-700"
+                  : "bg-white dark:bg-gray-900 border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200"
+              }`}
+            >
+              {t.label}
+            </button>
+          ))}
         </div>
 
-        {/* Blog Table */}
-        <div className="overflow-x-auto rounded-xl border border-gray-200 bg-white shadow-sm dark:border-gray-700 dark:bg-gray-800">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-50 dark:bg-gray-900">
-              <tr>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500">শিরোনাম</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 hidden md:table-cell">লেখক</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 hidden sm:table-cell">স্ট্যাটাস</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 hidden lg:table-cell">ভিউ</th>
-                <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 hidden lg:table-cell">লাইক</th>
-                <th className="px-4 py-3 text-right text-xs font-semibold uppercase tracking-wider text-gray-500">অ্যাকশন</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-              {loading ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-sm text-gray-500">লোড হচ্ছে...</td>
+        {loading ? (
+          <div className="py-10 flex justify-center">
+            <LoadingSpinner />
+          </div>
+        ) : blogs.length === 0 ? (
+          <div className="py-14 text-center">
+            <div className="text-5xl mb-3">📝</div>
+            <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200">কোনো ব্লগ নেই</h3>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left">
+                  <th className="pb-3 pr-4 font-semibold text-gray-600 dark:text-gray-300">শিরোনাম</th>
+                  <th className="pb-3 pr-4 font-semibold text-gray-600 dark:text-gray-300">ক্যাটাগরি</th>
+                  <th className="pb-3 pr-4 font-semibold text-gray-600 dark:text-gray-300">স্ট্যাটাস</th>
+                  <th className="pb-3 pr-4 font-semibold text-gray-600 dark:text-gray-300">ভিউ</th>
+                  <th className="pb-3 pr-4 font-semibold text-gray-600 dark:text-gray-300">লাইক</th>
+                  <th className="pb-3 font-semibold text-gray-600 dark:text-gray-300">অ্যাকশন</th>
                 </tr>
-              ) : blogs.length === 0 ? (
-                <tr>
-                  <td colSpan={6} className="px-4 py-12 text-center text-sm text-gray-500">কোনো ব্লগ পাওয়া যায়নি</td>
-                </tr>
-              ) : (
-                blogs.map((blog) => (
-                  <tr key={blog._id} className="hover:bg-gray-50 dark:hover:bg-gray-750 transition">
-                    <td className="px-4 py-4">
-                      <div className="flex items-center gap-3">
-                        {blog.image && (
-                          <img src={blog.image} alt="" className="h-10 w-10 rounded-lg object-cover shrink-0 hidden sm:block" />
-                        )}
-                        <div className="min-w-0">
-                          <p className="text-sm font-semibold text-gray-900 dark:text-white truncate max-w-[250px]">{blog.title}</p>
-                          <p className="text-xs text-gray-500 truncate max-w-[250px]">{blog.excerpt}</p>
-                        </div>
+              </thead>
+              <tbody>
+                {blogs.map((b) => (
+                  <tr
+                    key={b._id}
+                    className="border-t border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-900/40"
+                  >
+                    <td className="py-4 pr-4">
+                      <div className="font-semibold text-gray-900 dark:text-white">
+                        {b.title}
                       </div>
+                      <div className="text-xs text-gray-500 mt-1 line-clamp-1">{b.excerpt}</div>
                     </td>
-                    <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-400 hidden md:table-cell">
-                      {typeof blog.author === "object" ? blog.author?.name || "N/A" : "N/A"}
+                    <td className="py-4 pr-4 text-gray-700 dark:text-gray-200">{b.category || "—"}</td>
+                    <td className="py-4 pr-4">
+                      <span
+                        className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                          b.isPublished ? "bg-emerald-100 text-emerald-800" : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-200"
+                        }`}
+                      >
+                        {b.isPublished ? "Published" : "Draft"}
+                      </span>
                     </td>
-                    <td className="px-4 py-4 hidden sm:table-cell">{getStatusBadge(blog)}</td>
-                    <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-400 hidden lg:table-cell">{blog.views || 0}</td>
-                    <td className="px-4 py-4 text-sm text-gray-600 dark:text-gray-400 hidden lg:table-cell">{blog.likes || 0}</td>
-                    <td className="px-4 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => window.open(`/blog/${blog.slug}`, "_blank")}
-                          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-blue-600 dark:hover:bg-gray-700"
-                          title="Preview"
+                    <td className="py-4 pr-4 text-gray-700 dark:text-gray-200">{b.views || 0}</td>
+                    <td className="py-4 pr-4 text-gray-700 dark:text-gray-200">{b.likes || 0}</td>
+                    <td className="py-4">
+                      <div className="flex items-center gap-2">
+                        <Link
+                          href={`/blog/${b.slug}`}
+                          target="_blank"
+                          className="rounded-lg border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
                         >
-                          <FiEye size={16} />
+                          <FiEye className="inline-block mr-1" />
+                          View
+                        </Link>
+                        <button
+                          onClick={() => openEdit(b._id)}
+                          className="rounded-lg border border-gray-300 px-3 py-2 text-xs font-semibold text-gray-700 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-200 dark:hover:bg-gray-800"
+                        >
+                          <FiEdit3 className="inline-block mr-1" />
+                          Edit
                         </button>
                         <button
-                          onClick={() => router.push(`/admin/blogs/edit?id=${blog._id}`)}
-                          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-emerald-600 dark:hover:bg-gray-700"
-                          title="Edit"
+                          onClick={() => handleDelete(b._id)}
+                          className="rounded-lg border border-red-300 px-3 py-2 text-xs font-semibold text-red-700 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/10"
+                          disabled={submitting}
                         >
-                          <FiEdit2 size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(blog._id)}
-                          className="rounded-lg p-2 text-gray-500 hover:bg-gray-100 hover:text-red-600 dark:hover:bg-gray-700"
-                          title="Delete"
-                        >
-                          <FiTrash2 size={16} />
+                          <FiTrash2 className="inline-block mr-1" />
+                          Delete
                         </button>
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ))}
+              </tbody>
+            </table>
 
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="mt-6 flex items-center justify-center gap-2">
-            <button
-              disabled={page <= 1}
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-            >
-              আগে
-            </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((p) => (
-              <button
-                key={p}
-                onClick={() => setPage(p)}
-                className={`flex h-9 w-9 items-center justify-center rounded-lg text-sm font-medium transition ${
-                  p === page
-                    ? "bg-emerald-700 text-white shadow-sm"
-                    : "border border-gray-300 text-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-                }`}
-              >
-                {p}
-              </button>
-            ))}
-            <button
-              disabled={page >= totalPages}
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              className="rounded-lg border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-40 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700"
-            >
-              পরে
-            </button>
+            {error && (
+              <div className="mt-4 rounded-lg bg-red-50 border border-red-200 p-4 text-sm text-red-700">
+                {error}
+              </div>
+            )}
           </div>
         )}
+
+        <BlogModal
+          open={modalOpen}
+          mode={modalMode}
+          initial={modalInitial}
+          submitting={submitting}
+          error={error}
+          onClose={() => {
+            setModalOpen(false);
+            setError("");
+          }}
+          onSubmit={handleSubmit}
+        />
       </div>
     </DashboardLayout>
   );
 }
+

@@ -15,6 +15,7 @@ import {
   FiLogOut,
   FiUser,
   FiPackage,
+  FiMapPin,
 } from "react-icons/fi";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -239,3 +240,5 @@ export default function DashboardLayout({
     </div>
   );
 }
+
+
