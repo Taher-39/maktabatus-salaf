@@ -97,11 +97,14 @@ export interface Order {
   thana: string;
   district: string;
   items: OrderItem[];
-  totalPrice: number;
+  subtotal?: number;
+  shippingCharge?: number;
+  grandTotal: number;
   orderStatus: "pending" | "shipped" | "delivered" | "cancelled";
   paymentStatus: "pending" | "approved";
   paymentProof?: string;
   createdAt: string;
+  totalPrice?: number;
 }
 
 export interface BookQueryParams {

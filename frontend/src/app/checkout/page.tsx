@@ -2,11 +2,17 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { createOrder } from "@/lib/api";
+import { createOrder, createSslcommerzSession } from "@/lib/api";
 import { useAuthStore, useCartStore } from "@/lib/store";
 import { formatPrice } from "@/lib/utils";
 
-
+const getShippingCharge = (weightGrams: number) => {
+  const weightKg = weightGrams / 1000;
+  if (weightKg <= 1) return 90;
+  if (weightKg <= 2) return 110;
+  if (weightKg <= 3) return 130;
+  return 130 + Math.ceil(weightKg - 3) * 20;
+};
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -16,7 +22,13 @@ export default function CheckoutPage() {
   const [error, setError] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"COD" | "SSLCOMMERZ">("COD");
 
-  const apiOrderIdFromResponse = (res: any) => res?.data?.orderId || res?.data?._id;
+  const totalWeightGrams = items.reduce((sum, item) => sum + item.book.weight * item.quantity, 0);
+  const totalWeightKg = totalWeightGrams / 1000;
+  const shippingCharge = getShippingCharge(totalWeightGrams);
+  const orderTotal = totalPrice() + shippingCharge;
+
+  const mongoOrderIdFromResponse = (res: any) => res?.data?._id;
+  const publicOrderIdFromResponse = (res: any) => res?.data?.orderId || res?.data?._id;
 
 
   if (items.length === 0) {
@@ -52,25 +64,26 @@ export default function CheckoutPage() {
 
     try {
       const res = await createOrder(payload);
-      const orderId = apiOrderIdFromResponse(res);
+      const mongoOrderId = mongoOrderIdFromResponse(res);
+      const publicOrderId = publicOrderIdFromResponse(res);
 
-      if (!orderId) throw new Error("Order id not found");
+      if (!mongoOrderId || !publicOrderId) throw new Error("Order id not found");
 
       if (paymentMethod === "SSLCOMMERZ") {
-        // Create SSLCOMMERZ session and redirect user to gateway
-        // API returns redirectGatewayURL
-        const { createSslcommerzSession } = await import("@/lib/api");
-        const sessionRes = await createSslcommerzSession(orderId);
+        const sessionRes = await createSslcommerzSession(mongoOrderId);
+        const redirectUrl = sessionRes.data?.redirectGatewayURL;
+
+        if (!redirectUrl) throw new Error("SSLCOMMERZ redirect URL not found");
+
         clearCart();
-        window.location.href = sessionRes.data?.redirectGatewayURL;
+        window.location.href = redirectUrl;
         return;
       }
 
 
-
       // COD
       clearCart();
-      router.push(`/orders/track?orderId=${orderId}`);
+      router.push(`/orders/track?orderId=${publicOrderId}`);
     } catch (err: unknown) {
 
       const msg =
@@ -148,6 +161,38 @@ export default function CheckoutPage() {
             </div>
           </div>
 
+          <fieldset className="space-y-3 rounded-lg border border-emerald-100 p-4">
+            <legend className="px-1 text-sm font-semibold text-emerald-900">
+              Payment method
+            </legend>
+            <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-emerald-100 p-3 text-sm hover:border-emerald-300">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="COD"
+                checked={paymentMethod === "COD"}
+                onChange={() => setPaymentMethod("COD")}
+                className="h-4 w-4 accent-emerald-700"
+              />
+              <span>
+                Cash on delivery
+              </span>
+            </label>
+            <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-emerald-100 p-3 text-sm hover:border-emerald-300">
+              <input
+                type="radio"
+                name="paymentMethod"
+                value="SSLCOMMERZ"
+                checked={paymentMethod === "SSLCOMMERZ"}
+                onChange={() => setPaymentMethod("SSLCOMMERZ")}
+                className="h-4 w-4 accent-emerald-700"
+              />
+              <span>
+                Pay online with SSLCOMMERZ
+              </span>
+            </label>
+          </fieldset>
+
           {error && (
             <p className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
               {error}
@@ -175,9 +220,19 @@ export default function CheckoutPage() {
               </li>
             ))}
           </ul>
-          <div className="mt-4 flex justify-between border-t pt-4 font-bold">
-            <span>মোট</span>
-            <span className="text-amber-600">{formatPrice(totalPrice())}</span>
+          <div className="space-y-2 border-t pt-4 text-sm">
+            <div className="flex justify-between">
+              <span>ওজন</span>
+              <span>{totalWeightKg.toFixed(2)} কেজি</span>
+            </div>
+            <div className="flex justify-between">
+              <span>শিপিং চার্জ</span>
+              <span>{formatPrice(shippingCharge)}</span>
+            </div>
+            <div className="flex justify-between font-bold text-amber-600">
+              <span>মোট</span>
+              <span>{formatPrice(orderTotal)}</span>
+            </div>
           </div>
           <p className="mt-4 text-xs text-gray-500">
             অর্ডারের পর পেমেন্ট প্রুফ আপলোড করতে পারবেন।

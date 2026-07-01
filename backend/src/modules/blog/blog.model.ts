@@ -6,7 +6,7 @@ export interface IBlog extends Document {
   excerpt: string;
   content: string;
   image: string;
-  // blog category used by frontend list/details filtering
+  author?: mongoose.Types.ObjectId;
   category?: string;
   views: number;
   likes: number;
@@ -21,9 +21,9 @@ const blogSchema = new Schema<IBlog>(
     excerpt:     { type: String, required: true },
     content:     { type: String, required: true },
     image:       { type: String, default: "" },
+    author:      { type: Schema.Types.ObjectId, ref: "User", default: null },
     views:       { type: Number, default: 0 },
     likes:       { type: Number, default: 0 },
-    // blog category used by frontend list/details filtering
     category:    { type: String, default: "" },
     isPublished: { type: Boolean, default: true },
   },
@@ -33,17 +33,17 @@ const blogSchema = new Schema<IBlog>(
 );
 
 
-// Auto-generate slug from title
-blogSchema.pre("validate", function (next: any) {
-  if (this.isModified("title") && !this.slug) {
-    this.slug = this.title
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, "")
-      .replace(/\s+/g, "-")
-      .trim();
-  }
-  next();
-});
+// // Auto-generate slug from title
+// blogSchema.pre("validate", function (next: any) {
+//   if (this.isModified("title") && !this.slug) {
+//     this.slug = this.title
+//       .toLowerCase()
+//       .replace(/[^\w\s-]/g, "")
+//       .replace(/\s+/g, "-")
+//       .trim();
+//   }
+//   next();
+// });
 
 
 export const Blog = mongoose.model<IBlog>("Blog", blogSchema);

@@ -1,15 +1,16 @@
 "use client";
 
+export const dynamic = 'force-dynamic';
+
+import { Suspense } from "react";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
-export default function SslCommerzCallbackPage() {
+function SslCommerzCallbackContent() {
   const searchParams = useSearchParams();
   const [message, setMessage] = useState<string>("Processing callback...");
 
   useEffect(() => {
-    // SSLCOMMERZ callback may include various query params depending on integration.
-    // We show a generic UI and pass through status if present.
     const rawStatus =
       searchParams.get("status") ||
       searchParams.get("status_code") ||
@@ -27,6 +28,14 @@ export default function SslCommerzCallbackPage() {
         আপনি পেমেন্ট সম্পন্ন করার পর সফল/ব্যর্থ পেজে রিডাইরেক্ট হবেন।
       </p>
     </div>
+  );
+}
+
+export default function SslCommerzCallbackPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-2xl px-4 py-16 text-center">Processing callback...</div>}>
+      <SslCommerzCallbackContent />
+    </Suspense>
   );
 }
 

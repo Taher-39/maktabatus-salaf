@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { FiSearch, FiFilter, FiX, FiChevronDown, FiChevronUp } from "react-icons/fi";
 import BookCard from "@/components/shared/BookCard";
 import BookCardSkeleton from "@/components/shared/BookCardSkeleton";
-import { getBooks, getCategories, getAuthors } from "@/lib/api";
-import type { Book, BookQueryParams, Category, Author } from "@/lib/types";
+import { getBooks, getCategories, getAuthors, getPublishers } from "@/lib/api";
+import type { Book, BookQueryParams, Category, Author, Publisher } from "@/lib/types";
 import { debounce } from "@/lib/utils";
 
 type SortOption = BookQueryParams["sortBy"] | "newest";
@@ -26,6 +26,14 @@ const SORT_OPTIONS: { value: SortOption; label: string }[] = [
 const ITEMS_PER_PAGE = 12;
 
 export default function BooksPage() {
+  return (
+    <Suspense fallback={<div className="mx-auto max-w-7xl px-4 py-10 text-sm text-gray-500">লোড হচ্ছে...</div>}>
+      <BooksPageContent />
+    </Suspense>
+  );
+}
+
+function BooksPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -55,6 +63,7 @@ export default function BooksPage() {
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<Category[]>([]);
   const [authors, setAuthors] = useState<Author[]>([]);
+  const [publishers, setPublishers] = useState<Publisher[]>([]);
 
   // ── UI state ────────────────────────────────────────────────────────────
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -64,6 +73,7 @@ export default function BooksPage() {
   useEffect(() => {
     getCategories().then((res) => setCategories(res.data)).catch(() => {});
     getAuthors().then((res) => setAuthors(res.data)).catch(() => {});
+    getPublishers().then((res) => setPublishers(res.data || [])).catch(() => {});
   }, []);
 
   // ── Sync URL params to state ───────────────────────────────────────────
@@ -194,6 +204,30 @@ export default function BooksPage() {
         </select>
       </div>
 
+      {/* Publisher */}
+      <div>
+        <label className="mb-1.5 block text-sm font-semibold text-gray-700">প্রকাশনা</label>
+        <div className="max-h-40 space-y-2 overflow-y-auto pr-1">
+          <button
+            type="button"
+            onClick={() => { setPublisher(""); setPage(1); }}
+            className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition ${publisher ? "border-gray-200 bg-white text-gray-700 hover:border-emerald-300" : "border-emerald-500 bg-emerald-50 text-emerald-700"}`}
+          >
+            সব প্রকাশনা
+          </button>
+          {publishers.map((pub) => (
+            <button
+              key={pub._id}
+              type="button"
+              onClick={() => { setPublisher(pub._id); setPage(1); }}
+              className={`w-full rounded-lg border px-3 py-2 text-left text-sm transition ${publisher === pub._id ? "border-emerald-500 bg-emerald-50 text-emerald-700" : "border-gray-200 bg-white text-gray-700 hover:border-emerald-300"}`}
+            >
+              {pub.name}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Price Range */}
       <div>
         <button
@@ -317,6 +351,17 @@ export default function BooksPage() {
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800">
                 {a.name}
                 <button onClick={() => { setAuthor(""); setPage(1); }} className="ml-1 hover:text-red-600">
+                  <FiX size={14} />
+                </button>
+              </span>
+            ) : null;
+          })()}
+          {publisher && (() => {
+            const pub = publishers.find((p) => p._id === publisher);
+            return pub ? (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-3 py-1 text-xs font-medium text-emerald-800">
+                {pub.name}
+                <button onClick={() => { setPublisher(""); setPage(1); }} className="ml-1 hover:text-red-600">
                   <FiX size={14} />
                 </button>
               </span>

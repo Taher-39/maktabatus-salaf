@@ -9,11 +9,11 @@ import {
 
 const router = Router();
 
-router.get("/",         getAllBlogsHandler);
-router.get("/:slug",    getBlogBySlugHandler);
-router.get("/id/:id",   getBlogByIdHandler);
+router.get("/", getAllBlogsHandler);
+router.get("/id/:id", getBlogByIdHandler);
+router.get("/:slug", getBlogBySlugHandler);
 
-router.post("/",  protect, adminOnly, upload.single("image"), createBlogHandler);
+router.post("/", protect, adminOnly, upload.single("image"), createBlogHandler);
 router.put("/:id", protect, adminOnly, upload.single("image"), updateBlogHandler);
 router.delete("/:id", protect, adminOnly, deleteBlogHandler);
 router.patch("/:id/like", likeBlogHandler);

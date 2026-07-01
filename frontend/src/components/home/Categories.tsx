@@ -16,7 +16,7 @@ export default function Categories() {
   return (
     <section className="mx-auto max-w-7xl px-4 py-12">
       <h2 className="mb-6 text-2xl font-bold text-emerald-900">ক্যাটাগরি</h2>
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 md:grid-cols-5">
         {categories.map((c, index) => (
           <motion.div
             key={c._id}

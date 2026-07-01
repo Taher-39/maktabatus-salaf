@@ -2,7 +2,13 @@ import express from 'express';
 import { protect, adminOnly } from '../../middlewares/auth.middleware';
 import { upload } from '../../middlewares/upload.middleware';
 import * as OrderController from './order.controller';
-import { createSslcommerzSession, sslcommerzCallback } from './order.sslcommerz.controller';
+import {
+  createSslcommerzSession,
+  sslcommerzCallback,
+  sslcommerzCancel,
+  sslcommerzFail,
+  sslcommerzSuccess,
+} from './order.sslcommerz.controller';
 
 const router = express.Router();
 
@@ -44,6 +50,11 @@ router.get('/my-orders', protect, OrderController.getMyOrders);
 // GET /api/orders/track/:orderId — orderId দিয়ে track করো (MS-00001)
 router.get('/track/:orderId', OrderController.getOrderByOrderId);
 
+router.all('/sslcommerz/success', sslcommerzSuccess);
+router.all('/sslcommerz/fail', sslcommerzFail);
+router.all('/sslcommerz/cancel', sslcommerzCancel);
+router.all('/sslcommerz/callback', sslcommerzCallback);
+
 // PATCH /api/orders/:id/payment-proof — payment proof upload (with file)
 router.patch(
   '/:id/payment-proof',
@@ -69,8 +80,5 @@ router.get('/:id', OrderController.getSingleOrder);
 // SSLCOMMERZ
 // Create payment session (returns redirect URL)
 router.post('/:id/sslcommerz-session', createSslcommerzSession);
-
-// Callback/webhook URL for SSLCOMMERZ server-to-server updates
-router.post('/sslcommerz/callback', sslcommerzCallback);
 
 export default router;

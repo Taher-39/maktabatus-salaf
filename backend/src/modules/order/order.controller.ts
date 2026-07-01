@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { sendResponse } from '../../utils/sendResponse';
 import { AppError } from '../../middlewares/errorHandler';
+import { uploadBufferToCloudinary } from '../../utils/cloudinaryUpload';
 import { OrderService } from './order.service';
 import {
   createOrderSchema,
@@ -129,7 +130,12 @@ export const uploadPaymentProof = async (
       throw new AppError('পেমেন্ট প্রমাণ (ছবি) আপলোড করুন', 400);
     }
 
-    const proofUrl = (req.file as any).path; // Cloudinary URL from multer
+    const file = req.file as Express.Multer.File;
+    const proofUrl = await uploadBufferToCloudinary(
+      file.buffer,
+      'maktabatus-salaf/payments',
+      'image'
+    );
     const result = await OrderService.uploadPaymentProof(id, proofUrl);
 
     sendResponse(

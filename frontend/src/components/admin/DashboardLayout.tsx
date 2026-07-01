@@ -15,7 +15,8 @@ import {
   FiLogOut,
   FiUser,
   FiPackage,
-  FiMapPin,
+  FiChevronLeft,
+  FiChevronRight,
 } from "react-icons/fi";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -33,9 +34,11 @@ export default function DashboardLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
-  const { user, clearAuth } = useAuthStore();
+  const { user, clearAuth, authReady } = useAuthStore();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [profileDropdown, setProfileDropdown] = useState(false);
+  const [ready, setReady] = useState(false);
 
   const adminNavItems: DashboardNavItem[] = [
     { href: "/admin", label: "Overview", icon: <FiHome className="w-5 h-5" /> },
@@ -74,6 +77,11 @@ export default function DashboardLayout({
       label: "Orders",
       icon: <FiBarChart className="w-5 h-5" />,
     },
+     {
+      href: "/orders/track",
+      label: "Track Order",
+      icon: <FiBook className="w-5 h-5" />,
+    },
   ];
 
   const userNavItems: DashboardNavItem[] = [
@@ -89,6 +97,11 @@ export default function DashboardLayout({
       icon: <FiBook className="w-5 h-5" />,
     },
     {
+      href: "/orders/track",
+      label: "Track Order",
+      icon: <FiBook className="w-5 h-5" />,
+    },
+    {
       href: "/profile/change-password",
       label: "Change Password",
       icon: <FiSettings className="w-5 h-5" />,
@@ -98,38 +111,60 @@ export default function DashboardLayout({
   const navItems = user?.role === "admin" ? adminNavItems : userNavItems;
 
   useEffect(() => {
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!ready || !authReady) return;
     if (!user) {
-      router.push("/auth/login");
+      router.replace("/auth/login");
       return;
     }
-  }, [user, router]);
+  }, [ready, authReady, user, router]);
 
   const handleLogout = () => {
     clearAuth();
-    router.push("/auth/login");
+    router.replace("/auth/login");
   };
 
-  if (!user) return null;
+  if (!ready || !authReady || !user) return null;
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900">
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-64 bg-emerald-900 text-white shadow-lg transform transition-transform duration-300 ease-in-out md:relative md:translate-x-0",
-          sidebarOpen ? "translate-x-0" : "-translate-x-full"
+          "fixed inset-y-0 left-0 z-50 bg-gradient-to-b from-emerald-950 via-emerald-900 to-emerald-800 text-white shadow-2xl transform transition-all duration-300 ease-in-out md:relative md:translate-x-0",
+          sidebarOpen ? "translate-x-0" : "-translate-x-full",
+          sidebarCollapsed ? "w-20" : "w-64"
         )}
       >
         <div className="flex flex-col h-full">
           {/* Sidebar Header */}
-          <div className="flex items-center justify-between p-6 border-b border-emerald-800">
-            <h1 className="text-xl font-bold">Dashboard</h1>
+          <div className="flex items-center justify-between border-b border-emerald-800/80 p-4">
+            {!sidebarCollapsed ? (
+              <div>
+                <p className="text-xs uppercase tracking-[0.3em] text-emerald-200">Control Panel</p>
+                <h1 className="text-lg font-semibold">Dashboard</h1>
+              </div>
+            ) : (
+              <div className="mx-auto h-10 w-10 rounded-full bg-amber-500/20 p-2 text-amber-300">
+                <FiBook className="h-6 w-6" />
+              </div>
+            )}
+            <button
+              className="hidden rounded-full p-2 hover:bg-emerald-800 md:block"
+              onClick={() => setSidebarCollapsed((prev) => !prev)}
+              aria-label="Collapse sidebar"
+            >
+              {sidebarCollapsed ? <FiChevronRight className="h-5 w-5" /> : <FiChevronLeft className="h-5 w-5" />}
+            </button>
             <button
               className="md:hidden"
               onClick={() => setSidebarOpen(false)}
               aria-label="Close sidebar"
             >
-              <FiX className="w-5 h-5" />
+              <FiX className="h-5 w-5" />
             </button>
           </div>
 
@@ -141,26 +176,30 @@ export default function DashboardLayout({
                 href={item.href}
                 onClick={() => setSidebarOpen(false)}
                 className={cn(
-                  "flex items-center gap-3 px-4 py-3 rounded-lg transition",
+                  "flex items-center gap-3 rounded-xl px-3 py-3 transition",
                   pathname === item.href
-                    ? "bg-amber-500 text-emerald-900 font-semibold"
-                    : "hover:bg-emerald-800 text-emerald-100"
+                    ? "bg-amber-500 font-semibold text-emerald-950 shadow-lg"
+                    : "text-emerald-100 hover:bg-emerald-800/70",
+                  sidebarCollapsed && "justify-center px-2"
                 )}
               >
-                {item.icon}
-                <span>{item.label}</span>
+                <span className="shrink-0">{item.icon}</span>
+                {!sidebarCollapsed && <span>{item.label}</span>}
               </Link>
             ))}
           </nav>
 
           {/* Sidebar Footer */}
-          <div className="p-4 border-t border-emerald-800">
+          <div className="border-t border-emerald-800/80 p-4">
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 w-full px-4 py-3 rounded-lg bg-red-500 text-white hover:bg-red-600 transition shadow-sm"
+              className={cn(
+                "flex w-full items-center gap-3 rounded-xl bg-red-500/90 px-4 py-3 text-white shadow-sm transition hover:bg-red-600",
+                sidebarCollapsed && "justify-center px-2"
+              )}
             >
-              <FiLogOut className="w-5 h-5" />
-              <span>Logout</span>
+              <FiLogOut className="h-5 w-5" />
+              {!sidebarCollapsed && <span>Logout</span>}
             </button>
           </div>
         </div>
@@ -172,16 +211,19 @@ export default function DashboardLayout({
         <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 shadow-sm">
           <div className="flex items-center justify-between px-6 py-4">
             <button
-              className="md:hidden text-emerald-900 dark:text-emerald-100"
+              className="text-emerald-900 dark:text-emerald-100 md:hidden"
               onClick={() => setSidebarOpen(!sidebarOpen)}
               aria-label="Toggle sidebar"
             >
-              <FiMenu className="w-6 h-6" />
+              <FiMenu className="h-6 w-6" />
             </button>
 
-            <h2 className="text-2xl font-bold text-emerald-900 dark:text-emerald-100">
-              {user?.role === "admin" ? "Admin Dashboard" : "User Dashboard"}
-            </h2>
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-emerald-600">Welcome back</p>
+              <h2 className="text-xl font-bold text-emerald-900 dark:text-emerald-100 sm:text-2xl">
+                {user?.role === "admin" ? "Admin Dashboard" : "User Dashboard"}
+              </h2>
+            </div>
 
             {/* Profile Dropdown */}
             <div className="relative">

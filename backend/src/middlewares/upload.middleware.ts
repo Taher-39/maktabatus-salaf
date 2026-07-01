@@ -33,8 +33,6 @@ const storage = new CloudinaryStorage({
 
 export const upload = multer({
   storage: multer.memoryStorage(),
-  // বড় PDF সাইজের জন্য (Firebase Storage এ রাখছি, Cloudinary সমস্যা এড়াতে)
-  // 100MB পর্যন্ত allowed
   limits: { fileSize: 100 * 1024 * 1024 }, // 100MB
 
   fileFilter: (_req, file, cb) => {
@@ -52,3 +50,13 @@ export const upload = multer({
     }
   },
 });
+
+// Helper: multer errors are not AppError. Convert them so error middleware returns clean JSON.
+export const multerErrorToAppError = (err: any) => {
+  if (!err) return null;
+  // Multer "LIMIT_FILE_SIZE" etc
+  if (err.code) {
+    return new Error(err.message || "Upload limit exceeded");
+  }
+  return err;
+};

@@ -7,6 +7,7 @@ import type {
   BookQueryParams,
   Category,
   CreateOrderPayload,
+  Publisher,
   CreateReviewPayload,
   Order,
   Review,
@@ -81,6 +82,7 @@ export interface Blog {
   likes: number;
   views: number;
   category?: string;
+  author?: string | { _id?: string; name?: string; email?: string };
   isPublished?: boolean;
   createdAt: string;
 }
@@ -111,7 +113,7 @@ export async function getBlogById(id: string) {
   return data;
 }
 
-export async function createBlog(payload: { title: string; excerpt: string; content: string; category: string; image?: string }) {
+export async function createBlog(payload: { title: string; excerpt: string; content: string; category: string; image?: string; isPublished?: boolean }) {
   const { data } = await api.post<ApiResponse<Blog>>("/blogs", payload);
   return data;
 }
@@ -181,6 +183,11 @@ export async function getAuthorBooksById(id: string) {
 
 export async function getCategories() {
   const { data } = await api.get<ApiResponse<Category[]>>("/categories");
+  return data;
+}
+
+export async function getPublishers(params?: any) {
+  const { data } = await api.get<ApiResponse<Publisher[]>>("/publishers", { params });
   return data;
 }
 

@@ -31,11 +31,11 @@ export default function AdminOverviewPage() {
 
 useEffect(() => {
   if (!user) {
-    router.push("/auth/login");
+    router.replace("/auth/login");
     return;
   }
   if (user.role !== "admin") {
-    router.push("/profile");
+    router.replace("/profile");
     return;
   }
 
@@ -114,10 +114,12 @@ useEffect(() => {
 
   return (
     <DashboardLayout>
-      <div className="p-6 max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-8">
-          Welcome, {user.name}!
-        </h1>
+      <div className="mx-auto max-w-7xl p-6">
+        <div className="mb-8 rounded-3xl border border-emerald-100 bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-700 p-6 text-white shadow-xl">
+          <p className="text-sm uppercase tracking-[0.3em] text-emerald-200">Operations overview</p>
+          <h1 className="mt-2 text-3xl font-bold">Welcome, {user.name}!</h1>
+          <p className="mt-3 max-w-2xl text-sm text-emerald-100">Track orders, monitor book performance and keep your store moving with a clearer daily snapshot.</p>
+        </div>
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -141,6 +143,46 @@ useEffect(() => {
               </div>
             </div>
           ))}
+        </div>
+
+        <div className="mb-8 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
+            <div className="mb-4 flex items-center justify-between">
+              <div>
+                <p className="text-sm font-semibold text-emerald-700">Sales snapshot</p>
+                <h2 className="text-lg font-bold text-gray-900">Weekly activity</h2>
+              </div>
+              <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">Updated today</span>
+            </div>
+            <div className="flex h-48 items-end gap-3">
+              {[48, 72, 56, 82, 94, 69, 88].map((height, index) => (
+                <div key={index} className="flex flex-1 flex-col items-center gap-2">
+                  <div className="w-full rounded-t-xl bg-gradient-to-t from-emerald-700 to-amber-400" style={{ height: `${height}%` }} />
+                  <span className="text-[10px] uppercase text-gray-500">{["S", "M", "T", "W", "T", "F", "S"][index]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-emerald-100 bg-white p-6 shadow-sm">
+            <p className="text-sm font-semibold text-emerald-700">Distribution</p>
+            <div className="mt-4 flex items-center justify-center">
+              <div
+                className="flex h-40 w-40 items-center justify-center rounded-full border-[16px] border-emerald-200"
+                style={{ background: "conic-gradient(#059669 0 60%, #f59e0b 60% 85%, #6366f1 85% 100%)" }}
+              >
+                <div className="flex h-24 w-24 flex-col items-center justify-center rounded-full bg-white text-center">
+                  <span className="text-xl font-bold text-gray-900">85%</span>
+                  <span className="text-[10px] uppercase text-gray-500">Active</span>
+                </div>
+              </div>
+            </div>
+            <div className="mt-4 space-y-2 text-sm text-gray-600">
+              <div className="flex items-center justify-between"><span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-emerald-600" />Orders</span><span>60%</span></div>
+              <div className="flex items-center justify-between"><span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-amber-500" />Books</span><span>25%</span></div>
+              <div className="flex items-center justify-between"><span className="flex items-center gap-2"><span className="h-3 w-3 rounded-full bg-indigo-500" />Users</span><span>15%</span></div>
+            </div>
+          </div>
         </div>
 
         {/* Quick Actions */}

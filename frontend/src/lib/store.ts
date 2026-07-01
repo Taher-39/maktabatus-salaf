@@ -7,8 +7,12 @@ import type { Book, CartItem, User } from "./types";
 interface AuthState {
   user: User | null;
   token: string | null;
+  authReady: boolean;
+  hydrationComplete: boolean;
   setAuth: (user: User, token: string) => void;
   clearAuth: () => void;
+  setAuthReady: () => void;
+  setHydrationComplete: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -16,16 +20,25 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       token: null,
+      authReady: false,
+      hydrationComplete: false,
       setAuth: (user, token) => {
         localStorage.setItem("token", token);
-        set({ user, token });
+        set({ user, token, authReady: true });
       },
       clearAuth: () => {
         localStorage.removeItem("token");
-        set({ user: null, token: null });
+        set({ user: null, token: null, authReady: true });
       },
+      setAuthReady: () => set({ authReady: true }),
+      setHydrationComplete: () => set({ hydrationComplete: true }),
     }),
-    { name: "salaf-auth" }
+    {
+      name: "salaf-auth",
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrationComplete?.();
+      },
+    }
   )
 );
 

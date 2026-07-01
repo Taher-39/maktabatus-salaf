@@ -14,16 +14,16 @@ const createOrder = async (payload: TOrder) => {
   // (1,2] => 110tk
   // (2,3] => 130tk
   // +20tk per 1kg slab afterwards.
-  // NOTE: Assumes Book.weight is in kg.
+  // NOTE: Book.weight is stored in grams.
   const itemsWithBooks = await Promise.all(
     payload.items.map(async (it) => {
       const book = await (await import('../book/book.model')).Book.findById(it.book).select('weight');
-      return { quantity: it.quantity, unitWeight: book?.weight ?? 0 };
+      return { quantity: it.quantity, unitWeightGrams: book?.weight ?? 0 };
     })
   );
 
   const totalWeightKg = itemsWithBooks.reduce(
-    (sum, it) => sum + it.unitWeight * it.quantity,
+    (sum, it) => sum + (it.unitWeightGrams * it.quantity) / 1000,
     0
   );
 

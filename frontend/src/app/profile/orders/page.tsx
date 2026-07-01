@@ -70,7 +70,7 @@ export default function MyOrdersPage() {
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-amber-600">
-                    {formatPrice(order.totalPrice)}
+                    {formatPrice(order.totalPrice ?? 0)}
                   </p>
                   <p className="text-xs text-gray-500">
                     {statusLabels[order.orderStatus] || order.orderStatus}

@@ -39,8 +39,15 @@ export default function CreateBlogPage() {
     setSubmitting(true);
     setError("");
     try {
-      const payload = { title: title.trim(), excerpt: excerpt.trim(), content, category: category.trim() };
-      // For simplicity, create as published (admin wants it visible)
+      const slug = title.trim().toLowerCase().replace(/[^\w\s-]/g, "").replace(/\s+/g, "-").trim();
+      const payload = {
+        title: title.trim(),
+        excerpt: excerpt.trim(),
+        slug,
+        content,
+        category: category.trim(),
+        isPublished,
+      };
       await createBlog(payload);
       router.push("/admin/blogs");
     } catch (err: any) {

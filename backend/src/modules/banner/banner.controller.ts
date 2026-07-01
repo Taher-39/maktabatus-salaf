@@ -29,7 +29,7 @@ export const getActiveBannersHandler = async (req: Request, res: Response, next:
 
 export const getBannerByIdHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    const banner = await getBannerById(req.params.id);
+    const banner = await getBannerById((req.params.id as unknown) as string);
     sendResponse(res, 200, "সফল", banner);
   } catch (err) { next(err); }
 };
@@ -53,14 +53,14 @@ export const updateBannerHandler = async (req: Request, res: Response, next: Nex
     if (!parsed.success) throw new AppError(parsed.error.message, 400);
     
     const image = (req as any).file?.path;
-    const banner = await updateBanner(req.params.id, { ...parsed.data, ...(image && { image }) });
+    const banner = await updateBanner((req.params.id as unknown) as string, { ...parsed.data, ...(image && { image }) });
     sendResponse(res, 200, "আপডেট হয়েছে", banner);
   } catch (err) { next(err); }
 };
 
 export const deleteBannerHandler = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
-    await deleteBanner(req.params.id);
+    await deleteBanner((req.params.id as unknown) as string);
     sendResponse(res, 200, "ডিলিট হয়েছে");
   } catch (err) { next(err); }
 };

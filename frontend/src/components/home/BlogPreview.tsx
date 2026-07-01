@@ -54,7 +54,7 @@ export default function BlogPreview() {
           সব দেখুন →
         </Link>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
         {posts.map((p) => (
           <Link key={p.slug} href={`/blog/${p.slug}`} className="rounded-xl border border-emerald-100 bg-white p-6 shadow-sm transition hover:shadow-md">
             <h3 className="text-lg font-semibold text-emerald-900">{p.title}</h3>

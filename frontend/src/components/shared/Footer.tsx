@@ -73,7 +73,7 @@ export default function Footer() {
             </li>
             <li className="flex items-center gap-2">
               <FiMapPin className="text-amber-400" />
-              <span>রাজশাহী, বাংলাদেশ</span>
+              <span>ডাঙ্গিপাড়া,পাবা, রাজশাহী, বাংলাদেশ</span>
             </li>
           </ul>
         </div>

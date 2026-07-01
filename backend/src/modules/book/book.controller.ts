@@ -8,9 +8,9 @@ import {
   updateBook, deleteBook,
   getBooksByAuthor,
 } from "./book.service";
-import { v2 as cloudinary } from "cloudinary";
 import { admin } from "../../config/firebase";
 import { env } from "../../config/env";
+import { uploadBufferToCloudinary } from "../../utils/cloudinaryUpload";
 
 
 
@@ -62,28 +62,6 @@ export const getBooksByAuthorHandler = async (req: Request, res: Response, next:
 };
 
  
-// ── Helper: Buffer → Cloudinary ───────────────────────────────────────────────
-const uploadBufferToCloudinary = (
-  buffer: Buffer,
-  folder: string,
-  resourceType: "image" | "raw" = "image"
-): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      { folder, resource_type: resourceType },
-      (error, result) => {
-        if (error) {
-          console.error("Cloudinary upload error:", error.message, error.http_code);
-          return reject(new AppError("ফাইল আপলোড ব্যর্থ হয়েছে: " + error.message, 500));
-        }
-        if (!result) return reject(new AppError("Cloudinary result নেই", 500));
-        resolve(result.secure_url);
-      }
-    );
-    stream.end(buffer);
-  });
-};
- 
 // ── File upload helper ────────────────────────────────────────────────────────
 const handleFileUploads = async (
   files: { [fieldname: string]: Express.Multer.File[] } | undefined
@@ -119,8 +97,7 @@ export const createBookHandler = async (
     console.log("=== req.body keys ===", Object.keys(req.body));
  
     const { coverImage: _c, previewPdf: _p, ...body } = req.body;
-    const previewPdfUrl = req.body.previewPdfUrl as string | undefined;
- 
+
     const parsed = createBookSchema.safeParse({
 
       ...body,
@@ -135,8 +112,8 @@ export const createBookHandler = async (
     }
  
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    const { coverImageUrl } = await handleFileUploads(files);
-    const previewPdfUrlFinal = req.body.previewPdfUrl as string | undefined;
+    const { coverImageUrl, previewPdfUrl } = await handleFileUploads(files);
+    const previewPdfUrlFinal = previewPdfUrl || (req.body.previewPdfUrl as string | undefined);
  
     const book = await createBook(parsed.data, coverImageUrl, previewPdfUrlFinal);
 
@@ -171,8 +148,8 @@ export const updateBookHandler = async (
     }
  
     const files = req.files as { [fieldname: string]: Express.Multer.File[] };
-    const { coverImageUrl } = await handleFileUploads(files);
-    const previewPdfUrlFinal = req.body.previewPdfUrl as string | undefined;
+    const { coverImageUrl, previewPdfUrl } = await handleFileUploads(files);
+    const previewPdfUrlFinal = previewPdfUrl || (req.body.previewPdfUrl as string | undefined);
  
     const book = await updateBook((req.params.id as unknown) as string, parsed.data, coverImageUrl, previewPdfUrlFinal);
 

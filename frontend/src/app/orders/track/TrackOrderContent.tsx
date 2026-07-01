@@ -134,7 +134,7 @@ export default function TrackOrderContent() {
               ))}
             </ul>
             <p className="mt-3 text-right font-bold text-amber-600">
-              মোট: {formatPrice(order.totalPrice)}
+              মোট: {formatPrice(order.totalPrice ?? 0)}
             </p>
           </div>
         </div>

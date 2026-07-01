@@ -28,11 +28,12 @@ export default function FeaturedBooksCarousel({
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   // ── Visible count per variant ────────────────────────────────────────────────
-  const visibleCount = variant === "compact" ? 3 : 4;
+  // compact: top-right এ কম জায়গা লাগে, তাই 2টা করে দেখাবো
+  const visibleCount = variant === "compact" ? 2 : 4;
 
   // ── Fetch featured books ─────────────────────────────────────────────────────
   useEffect(() => {
-    getBooks({ sortBy: "popular", limit: 12 })
+    getBooks()
       .then((res) => {
         const filtered = excludeId
           ? res.data.filter((b) => b._id !== excludeId)

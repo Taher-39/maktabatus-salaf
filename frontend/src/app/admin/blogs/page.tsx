@@ -106,6 +106,7 @@ export default function AdminBlogsPage() {
           excerpt: draft.excerpt.trim(),
           content: draft.content,
           category: draft.category.trim(),
+          isPublished: draft.isPublished,
           // image omitted (backend upload handled elsewhere)
         } as any);
       } else {

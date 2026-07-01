@@ -18,18 +18,12 @@ export default function HomePage() {
       <HeroBanner />
 
       <main>
+        <Categories />
+        <NewBooks />
         <Features />
         <PromoBanner />
-        <section className="mx-auto max-w-7xl px-4 py-8">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-emerald-900">বই ব্রাউজ করুন</h2>
-          </div>
-        </section>
-
-        <Categories />
         <AuthorsCarousel />
         <PopularBooks />
-        <NewBooks />
         <Stats />
         <Testimonials />
         <VideoReviews />

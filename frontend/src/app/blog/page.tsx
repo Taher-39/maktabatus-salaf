@@ -96,24 +96,27 @@ export default function BlogsPage() {
         </p>
       </div>
 
-      <div className="mb-8 flex flex-col gap-3 sm:flex-row">
-        <div className="relative flex-1">
+      <div className="mb-8 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-center">
+        {/* Search (centered, ~25% width on wide screens) */}
+        <div className="relative w-full sm:w-1/4">
           <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => handleSearch(e.target.value)}
             placeholder="ব্লগ সার্চ করুন..."
-            className="w-3/4 rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-emerald-500 focus:outline-none"
+            className="w-full rounded-lg border border-gray-300 py-2.5 pl-10 pr-4 text-sm focus:border-emerald-500 focus:outline-none"
           />
         </div>
+
+        {/* Sort option (right side) */}
         <select
           value={sortBy}
           onChange={(e) => {
             setSortBy(e.target.value);
             setPage(1);
           }}
-          className="rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
+          className="w-full sm:w-auto rounded-lg border border-gray-300 px-3 py-2.5 text-sm focus:border-emerald-500 focus:outline-none"
         >
           {SORT_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>

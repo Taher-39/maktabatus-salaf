@@ -8,12 +8,34 @@ type CreateBlogData = z.infer<typeof createBlogSchema>;
 type UpdateBlogData = z.infer<typeof updateBlogSchema>;
 
 const sortMap: Record<string, Record<string, 1 | -1>> = {
-  newest:       { createdAt: -1 },
-  oldest:       { createdAt: 1 },
-  views_asc:    { views: 1 },
-  views_desc:   { views: -1 },
-  likes_asc:    { likes: 1 },
-  likes_desc:   { likes: -1 },
+  newest: { createdAt: -1 },
+  oldest: { createdAt: 1 },
+  views_asc: { views: 1 },
+  views_desc: { views: -1 },
+  likes_asc: { likes: 1 },
+  likes_desc: { likes: -1 },
+};
+
+const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .replace(/^-|-$/g, "");
+
+const getUniqueSlug = async (title: string) => {
+  const baseSlug = slugify(title) || `blog-${Date.now()}`;
+  let slug = baseSlug;
+  let counter = 2;
+
+  while (await Blog.exists({ slug })) {
+    slug = `${baseSlug}-${counter}`;
+    counter += 1;
+  }
+
+  return slug;
 };
 
 export const getAllBlogs = async (query: BlogQuery) => {
@@ -26,6 +48,7 @@ export const getAllBlogs = async (query: BlogQuery) => {
   if (search) {
     filter.$or = [
       { title: { $regex: search, $options: "i" } },
+      { excerpt: { $regex: search, $options: "i" } },
       { content: { $regex: search, $options: "i" } },
     ];
   }
@@ -54,67 +77,52 @@ export const getAllBlogs = async (query: BlogQuery) => {
 };
 
 export const getBlogBySlug = async (slug: string) => {
-  const blog = await Blog.findOne({ slug, isPublished: true })
-    .populate("author", "name email");
+  const blog = await Blog.findOne({ slug, isPublished: true }).populate("author", "name email");
 
-  if (!blog) throw new AppError("ব্লগ খুঁজে পাওয়া যায়নি", 404);
+  if (!blog) throw new AppError("Blog not found", 404);
   return blog;
 };
 
 export const getBlogById = async (id: string) => {
-  const blog = await Blog.findById(id)
-    .populate("author", "name email");
+  const blog = await Blog.findById(id).populate("author", "name email");
 
-  if (!blog) throw new AppError("ব্লগ খুঁজে পাওয়া যায়নি", 404);
+  if (!blog) throw new AppError("Blog not found", 404);
   return blog;
 };
 
-export const createBlog = async (data: CreateBlogData, userId: string) => {
-  const blog = new Blog({ ...data, author: userId });
+export const createBlog = async (data: CreateBlogData, userId?: string) => {
+  const blog = new Blog({
+    ...data,
+    slug: await getUniqueSlug(data.title),
+    author: userId || null,
+  });
+
   await blog.save();
-  return blog.populate("author");
+  return blog.populate("author", "name email");
 };
 
-export const updateBlog = async (id: string, data: UpdateBlogData, userId: string) => {
+export const updateBlog = async (id: string, data: UpdateBlogData) => {
   const blog = await Blog.findById(id);
-  if (!blog) throw new AppError("ব্লগ খুঁজে পাওয়া যায়নি", 404);
-
-  if (blog.author.toString() !== userId) {
-    throw new AppError("আপনি এই ব্লগ আপডেট করতে পারেন না", 403);
-  }
+  if (!blog) throw new AppError("Blog not found", 404);
 
   Object.assign(blog, data);
   await blog.save();
-  return blog.populate("author");
+  return blog.populate("author", "name email");
 };
 
-export const deleteBlog = async (id: string, userId: string) => {
-  const blog = await Blog.findById(id);
-  if (!blog) throw new AppError("ব্লগ খুঁজে পাওয়া যায়নি", 404);
-
-  if (blog.author.toString() !== userId) {
-    throw new AppError("আপনি এই ব্লগ ডিলিট করতে পারেন না", 403);
-  }
-
-  await Blog.findByIdAndDelete(id);
+export const deleteBlog = async (id: string) => {
+  const blog = await Blog.findByIdAndDelete(id);
+  if (!blog) throw new AppError("Blog not found", 404);
 };
 
 export const likeBlog = async (id: string) => {
-  const blog = await Blog.findByIdAndUpdate(
-    id,
-    { $inc: { likes: 1 } },
-    { new: true }
-  );
-  if (!blog) throw new AppError("ব্লগ খুঁজে পাওয়া যায়নি", 404);
+  const blog = await Blog.findByIdAndUpdate(id, { $inc: { likes: 1 } }, { new: true });
+  if (!blog) throw new AppError("Blog not found", 404);
   return blog;
 };
 
 export const incrementViews = async (id: string) => {
-  const blog = await Blog.findByIdAndUpdate(
-    id,
-    { $inc: { views: 1 } },
-    { new: true }
-  );
-  if (!blog) throw new AppError("ব্লগ খুঁজে পাওয়া যায়নি", 404);
+  const blog = await Blog.findByIdAndUpdate(id, { $inc: { views: 1 } }, { new: true });
+  if (!blog) throw new AppError("Blog not found", 404);
   return blog;
 };

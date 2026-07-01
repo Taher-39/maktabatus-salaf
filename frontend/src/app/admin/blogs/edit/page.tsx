@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { FiArrowLeft, FiSave } from "react-icons/fi";
 import DashboardLayout from "@/components/admin/DashboardLayout";
@@ -9,6 +9,14 @@ import { getBlogById, updateBlog } from "@/lib/api";
 import LoadingSpinner from "@/components/shared/LoadingSpinner";
 
 export default function EditBlogPage() {
+  return (
+    <Suspense fallback={<div className="p-6"><LoadingSpinner /></div>}>
+      <EditBlogPageContent />
+    </Suspense>
+  );
+}
+
+function EditBlogPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const blogId = searchParams.get("id");

@@ -18,10 +18,12 @@ router.get("/:slug",         getBookBySlugHandler);
 
 router.post("/",    protect, adminOnly, upload.fields([
   { name: "coverImage", maxCount: 1 },
+  { name: "previewPdf", maxCount: 1 },
 ]), createBookHandler);
 
 router.put("/:id",  protect, adminOnly, upload.fields([
   { name: "coverImage", maxCount: 1 },
+  { name: "previewPdf", maxCount: 1 },
 ]), updateBookHandler);
 
 
